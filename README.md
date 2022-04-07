@@ -4,7 +4,7 @@ Ion is a all-in-one application to sum up a lot of useful tools in a single comm
 ## Principles
 
 The principles of `ion` is to be light, simple and easy to use. The documentation is contained in the application itself
-that be read as you with other modern CLI tools as docker, kubernetes, hugo. Simply type:
+that be can read as you do with other modern CLI tools as docker, kubernetes, hugo. Simply type:
 
 ```shell
 ion --help
