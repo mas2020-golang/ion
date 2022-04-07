@@ -6,8 +6,7 @@ test:
 
 goreleaser:
 	@echo "start building..."
-	@go build -o bin/ion main.go
-	#@goreleaser  --rm-dist --snapshot --skip-publish
+	@goreleaser  --rm-dist --snapshot --skip-publish
 	@echo "done!"
 
 install-on-mac: build test
