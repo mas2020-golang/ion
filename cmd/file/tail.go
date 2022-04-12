@@ -25,7 +25,7 @@ func NewTailCmd() *cobra.Command {
 $ ion tail -r 10 < test.txt
 // read from the pipe
 $ cat test.txt | ion tail --rows 10`,
-		Short: "Show the n latest rows from the input",
+		Short: "Show the n latest rows from the given input",
 		Long: `The tail command shows the n latest rows from the given input.
 The command can read the standard input, a file, the result of a pipe redirection and
 return the corresponding rows.`,

@@ -49,6 +49,7 @@ func init() {
 
 	// Add the other commands
 	rootCmd.AddCommand(file.NewTailCmd())
+	rootCmd.AddCommand(file.NewTreeCmd())
 }
 
 
