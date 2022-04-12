@@ -36,9 +36,9 @@ func GetBytesFromPipe() *os.File {
 }
 
 // Check checks if an error and exit
-func Check(err error){
+func Check(err error) {
 	if err != nil {
-		fmt.Printf("Error: %v\n", err)
+		fmt.Printf("%s %v\n", RedS("Error:"), err)
 		os.Exit(1)
 	}
 }
