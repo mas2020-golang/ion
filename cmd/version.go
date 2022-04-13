@@ -18,8 +18,8 @@ func NewVersionCmd() *cobra.Command {
 		Short: "Show the application version",
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf(`Version: %12s
-Git commit: %s`, utils.Version, utils.GitCommit)
+			fmt.Printf(`%-12s%s
+Git commit: %s`, "Version:", utils.Version, utils.GitCommit)
 			fmt.Println()
 		},
 	}

@@ -1,13 +1,12 @@
 export GIT_COMMIT=$(shell git rev-list -1 --abbrev-commit HEAD)
 
-test:
+testing:
 	@echo "==> ion test..."
 	@go test ./... -v
 
 goreleaser:
 	@echo "start building..."
-	@go build -o bin/ion main.go
-	#@goreleaser  --rm-dist --snapshot --skip-publish
+	@goreleaser  --rm-dist --snapshot --skip-publish
 	@echo "done!"
 
 install-on-mac: build test

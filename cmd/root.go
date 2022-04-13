@@ -5,6 +5,7 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"github.com/mas2020-golang/ion/cmd/file"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -45,6 +46,10 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	// Add the other commands
+	rootCmd.AddCommand(file.NewTailCmd())
+	rootCmd.AddCommand(file.NewTreeCmd())
 }
 
 
