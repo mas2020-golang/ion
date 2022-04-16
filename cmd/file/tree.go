@@ -20,7 +20,6 @@ var (
 )
 
 // NewTreeCmd represents the tree command
-// TODO: colorize the folders
 func NewTreeCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "tree <FOLDER>",
