@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"golang.org/x/term"
 	"os"
 )
 
@@ -35,10 +36,17 @@ func GetBytesFromPipe() *os.File {
 	return nil
 }
 
+// ReadPassword reads the standard input in hidden mode
+func ReadPassword(text string) (string, error) {
+	fmt.Print(text)
+	buf, err := term.ReadPassword(0)
+	return string(buf), err
+}
+
 // Check checks if an error and exit
-func Check(err error){
+func Check(err error) {
 	if err != nil {
-		fmt.Printf("Error: %v\n", err)
+		fmt.Printf("%s %v\n", RedS("Error:"), err)
 		os.Exit(1)
 	}
 }

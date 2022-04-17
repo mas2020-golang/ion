@@ -6,6 +6,7 @@ package cmd
 
 import (
 	"github.com/mas2020-golang/ion/cmd/file"
+	"github.com/mas2020-golang/ion/cmd/security"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -50,6 +51,7 @@ func init() {
 	// Add the other commands
 	rootCmd.AddCommand(file.NewTailCmd())
 	rootCmd.AddCommand(file.NewTreeCmd())
+	rootCmd.AddCommand(security.NewCryptoCmd())
 }
 
 
