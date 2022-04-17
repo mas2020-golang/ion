@@ -31,8 +31,12 @@ func NewCryptoCmd() *cobra.Command {
 		Use:     "crypto ...",
 		Args:    cobra.MinimumNArgs(1),
 		Example: ``,
-		Short:   "Crypto",
-		Long:    `Long Crypto`,
+		Short:   "An easy way to encrypt and decrypt file and folders",
+		Long: `An easy way to encrypt and decrypt file and folders using the AES algo with a 256 bits key.
+
+Examples:
+$ ion crypto /tmp --remove
+$ ion crypto /tmp --remove --decrypt`,
 		Run: func(cmd *cobra.Command, args []string) {
 			crypto(args)
 		},
@@ -40,7 +44,7 @@ func NewCryptoCmd() *cobra.Command {
 
 	// flags
 	cmd.Flags().BoolVarP(&remove, "remove", "r", false, "remove the original file")
-	cmd.Flags().BoolVarP(&decrypt, "decrypt", "d", false, "if --decrypt is passed, it will decrypt the content, otherwise it will encrypt")
+	cmd.Flags().BoolVarP(&decrypt, "decrypt", "d", false, "for decrypting the content, otherwise it will encrypt")
 
 	// help
 	//cmd.SetHelpFunc(func(command *cobra.Command, strings []string) {
