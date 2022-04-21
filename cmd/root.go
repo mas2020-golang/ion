@@ -52,6 +52,7 @@ func init() {
 	rootCmd.AddCommand(file.NewTailCmd())
 	rootCmd.AddCommand(file.NewTreeCmd())
 	rootCmd.AddCommand(security.NewCryptoCmd())
+	rootCmd.AddCommand(file.NewWcCmd())
 }
 
 
