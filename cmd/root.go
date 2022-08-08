@@ -5,9 +5,10 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"os"
+
 	"github.com/mas2020-golang/ion/cmd/file"
 	"github.com/mas2020-golang/ion/cmd/security"
-	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -52,6 +53,5 @@ func init() {
 	rootCmd.AddCommand(file.NewTailCmd())
 	rootCmd.AddCommand(file.NewTreeCmd())
 	rootCmd.AddCommand(security.NewCryptoCmd())
+	rootCmd.AddCommand(file.NewCountCmd())
 }
-
-
