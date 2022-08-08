@@ -6,30 +6,33 @@ package file
 
 import (
 	"fmt"
-	"github.com/mas2020-golang/ion/packages/utils"
-	"github.com/spf13/cobra"
 	"io"
 	"os"
+
+	"github.com/mas2020-golang/ion/packages/utils"
+	"github.com/spf13/cobra"
 )
+
 //TODO: implement the unit test for the wc command
 //TODO: change the name of the command to count
 var (
 	words bool
 )
 
-// NewWcCmd represents the wc command
-func NewWcCmd() *cobra.Command {
+// NewCountCmd represents the wc command
+func NewCountCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use: "wc <file|pipe|standard-input>",
-		Example: `$ ion wc test.txt
-// read from the standard input
-$ ion ion wc < test.txt
-// read from the pipe
+		Use: "count <file|pipe|standard-input>",
+		Example: `# point the file to read
+$ ion wc test.txt
+# read from the standard input
+$ ion ion wc < test.txt 
+# read from the pipe
 $ cat test.txt | ion wc`,
-		Short: "Show the lines, words of the given input",
-		Long: `The wc command shows the lines, words of the given input
+		Short: "Show the lines or the words of the given input",
+		Long: `The wc command shows the lines or the words of the given input
 The command can read the standard input, a file, the result of a pipe redirection and
-return the corresponding words or line`,
+return the corresponding words or lines`,
 		Run: func(cmd *cobra.Command, args []string) {
 			c, err := wc(args)
 			utils.Check(err)
