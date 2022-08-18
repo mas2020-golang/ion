@@ -23,7 +23,13 @@ Linux/Unix commands.
 
 ## Getting started
 
-## Available commands
+You can install `ion` using the installing script for Mac and Linux:
+
+```shell
+#TODO: continue from here, take note how to download the install.sh and execute...
+```
+
+## Available commands [todo better]
 
 Follow the list of all the available commands in the current version of `ion`:
 - `tail`: to show the rows of a file/standard input starting from the bottom
