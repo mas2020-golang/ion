@@ -13,8 +13,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-//TODO: implement the unit test for the wc command
-//TODO: change the name of the command to count
 var (
 	words bool
 )
