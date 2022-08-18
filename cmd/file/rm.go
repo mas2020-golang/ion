@@ -18,6 +18,7 @@ import (
 
 var (
 	verbose, dryrun, deep bool
+	spaceFree             int64
 )
 
 func NewRmCmd() *cobra.Command {
@@ -43,6 +44,7 @@ The command returns 0 in case of success and 1 in case something went wrong (plu
 					os.Exit(1)
 				} else {
 					out.InfoBox(fmt.Sprintf("removed %d files from %s (searched on %d dirs)", files, arg, dirs))
+					out.InfoBox(fmt.Sprintf("total space retrieved is %d KB", spaceFree/1024))
 				}
 			}
 		},
@@ -78,6 +80,7 @@ func readPath(path string) error {
 		}
 		deleteFolder(path)
 	} else {
+		spaceFree += fi.Size()
 		if err := deleteFile(path); err != nil {
 			return err
 		}
@@ -170,7 +173,6 @@ func deepClean(path string) error {
 		copy(partZeroBytes[:], "0")
 
 		// over write every byte in the chunk with 0
-		fmt.Println("Writing to target file from position : ", lastPosition)
 		_, err := f.WriteAt([]byte(partZeroBytes), int64(lastPosition))
 
 		if err != nil {
