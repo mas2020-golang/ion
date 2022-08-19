@@ -30,7 +30,8 @@ $ cat test.txt | ion wc`,
 		Short: "Count the lines or the words of the given input",
 		Long: `The wc command shows the lines or the words of the given input
 The command can read the standard input or a file and
-return the corresponding number of words or lines`,
+return the corresponding number of words or lines
+`,
 		Run: func(cmd *cobra.Command, args []string) {
 			c, err := wc(args)
 			utils.Check(err)
@@ -40,9 +41,10 @@ return the corresponding number of words or lines`,
 
 	// flags
 	cmd.Flags().BoolVarP(&words, "words", "w", words, "number of words contained in the file/standard input")
+	// TODO: fix the error, add to the utils the other func used by the templating system
 	cmd.SetHelpFunc(utils.GetHelpFunction(`{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
-	
-	{{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`))
+
+{{end}}{{if or .Runnable .HasSubCommands}}{{.Usage}}{{end}}`))
 	return cmd
 }
 

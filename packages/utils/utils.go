@@ -2,10 +2,10 @@ package utils
 
 import (
 	"fmt"
-	"html/template"
 	"io"
 	"os"
 	"strings"
+	"text/template"
 	"unicode"
 
 	"github.com/spf13/cobra"
@@ -81,18 +81,4 @@ func printCommandHelp(w io.Writer, text string, data interface{}) {
 
 func trimRightSpace(s string) string {
 	return strings.TrimRightFunc(s, unicode.IsSpace)
-}
-
-// appendIfNotPresent will append stringToAppend to the end of s, but only if it's not yet present in s.
-func appendIfNotPresent(s, stringToAppend string) string {
-	if strings.Contains(s, stringToAppend) {
-		return s
-	}
-	return s + " " + stringToAppend
-}
-
-// rpad adds padding to the right of a string.
-func rpad(s string, padding int) string {
-	template := fmt.Sprintf("%%-%ds", padding)
-	return fmt.Sprintf(template, s)
 }

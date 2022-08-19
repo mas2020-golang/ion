@@ -10,6 +10,7 @@ import (
 
 	"github.com/mas2020-golang/ion/cmd/file"
 	"github.com/mas2020-golang/ion/cmd/security"
+	"github.com/mas2020-golang/ion/packages/utils"
 
 	"github.com/spf13/cobra"
 )
@@ -21,14 +22,12 @@ var rootCmd = &cobra.Command{
 	Long: `Ion is an all-in-one application to sum up a lot of useful tools in a single command.
 The swiss knife for every SysAdmin/DevOps!. You can use the ion commands as you do with pipes,
 standard input/output and a lot of other daily basis activities.
-
-Some examples:
-// to search some content into a file
+`,
+	Example: `// to search some content into a file
 $ ion search --regexp '(temp)' --color test.txt
 
 // tail the last 10 rows
-$ ion tail --rows 10 test.txt
-`,
+$ ion tail --rows 10 test.txt`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
@@ -45,7 +44,15 @@ func Execute() {
 
 func init() {
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ion.yaml)")
-	rootCmd.SetHelpFunc(getHelp())
+	rootCmd.SetHelpFunc(utils.GetHelpFunction(`{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
+
+{{end}}{{if .HasAvailableLocalFlags}}
+
+Flags:
+{{.LocalFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{if .HasAvailableInheritedFlags}}
+
+Global Flags:
+{{.InheritedFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}`))
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
