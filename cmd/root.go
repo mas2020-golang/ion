@@ -5,6 +5,7 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/mas2020-golang/ion/cmd/file"
@@ -44,6 +45,7 @@ func Execute() {
 
 func init() {
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ion.yaml)")
+	rootCmd.SetHelpFunc(getHelp())
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -55,4 +57,30 @@ func init() {
 	rootCmd.AddCommand(security.NewCryptoCmd())
 	rootCmd.AddCommand(file.NewCountCmd())
 	rootCmd.AddCommand(file.NewRmCmd())
+}
+
+// getHelp returns the help for the command
+func getHelp() func(*cobra.Command, []string) {
+	return func(*cobra.Command, []string) {
+		fmt.Print(`Ion is an all-in-one application to sum up a lot of useful tools in a single command.
+The swiss knife for every SysAdmin/DevOps! You can use the ion commands as you do with pipes,
+standard input/output and a lot of other daily basis activities.
+
+File Commands:
+  count      Count the lines or the words of the given input
+  rm         Remove the files or folders given as an input
+  tail       Show the n latest rows from the given input
+  tree       Show the file system in a tree graphical representation
+  
+Security Commands:
+  encrypt    Encrypt file/s or folder/s using the AES algorithm
+  decrypt    Decrypt file/s or folder/s using the AES algorithm
+
+Flags:
+  -h, --help     help for ion
+  -t, --toggle   Help message for toggle
+
+Use "ion [command] --help" for more information about a command.
+`)
+	}
 }

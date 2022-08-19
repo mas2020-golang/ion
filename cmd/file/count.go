@@ -23,14 +23,14 @@ func NewCountCmd() *cobra.Command {
 		Use: "count <file|pipe|standard-input>",
 		Example: `# point the file to read
 $ ion wc test.txt
-# read from the standard input
+# read from the standard input file redirection
 $ ion ion wc < test.txt 
 # read from the pipe
 $ cat test.txt | ion wc`,
-		Short: "Show the lines or the words of the given input",
+		Short: "Count the lines or the words of the given input",
 		Long: `The wc command shows the lines or the words of the given input
-The command can read the standard input, a file, the result of a pipe redirection and
-return the corresponding words or lines`,
+The command can read the standard input or a file and
+return the corresponding number of words or lines`,
 		Run: func(cmd *cobra.Command, args []string) {
 			c, err := wc(args)
 			utils.Check(err)
@@ -40,6 +40,9 @@ return the corresponding words or lines`,
 
 	// flags
 	cmd.Flags().BoolVarP(&words, "words", "w", words, "number of words contained in the file/standard input")
+	cmd.SetHelpFunc(utils.GetHelpFunction(`{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
+	
+	{{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`))
 	return cmd
 }
 

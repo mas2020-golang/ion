@@ -6,10 +6,11 @@ package file
 
 import (
 	"fmt"
-	"github.com/mas2020-golang/ion/packages/utils"
-	"github.com/spf13/cobra"
 	"io/ioutil"
 	"os"
+
+	"github.com/mas2020-golang/ion/packages/utils"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -21,13 +22,13 @@ func NewTailCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "tail <file|pipe|standard-input>",
 		Example: `$ ion tail --rows 10 test.txt
-// read from the standard input
+// read from the standard input file redirection
 $ ion tail -r 10 < test.txt
 // read from the pipe
 $ cat test.txt | ion tail --rows 10`,
 		Short: "Show the n latest rows from the given input",
-		Long: `The tail command shows the n latest rows from the given input.
-The command can read the standard input, a file, the result of a pipe redirection and
+		Long: `Show the n latest rows from the given input.
+The command can read the standard input or a file and
 return the corresponding rows.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			lines, err := tail(args, rows)

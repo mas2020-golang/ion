@@ -31,8 +31,8 @@ $ ion rm test.txt
 $ ion rm folder
 # delete more objects
 $ ion delete folder file1 file2`,
-		Short: "Removes the files or folders given as an input",
-		Long: `The command removes the files or folders given as an input. Use a space as a separator between the files (or folders).
+		Short: "Remove the files or folders given as an input",
+		Long: `Remove the files or folders given as an input. Use a space as a separator between the files (or folders).
 The command returns 0 in case of success and 1 in case something went wrong (plus an error onto the standard error).`,
 		Run: func(cmd *cobra.Command, args []string) {
 			for _, arg := range args {

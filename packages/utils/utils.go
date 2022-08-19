@@ -2,12 +2,23 @@ package utils
 
 import (
 	"fmt"
-	"golang.org/x/term"
+	"html/template"
+	"io"
 	"os"
+	"strings"
+	"unicode"
+
+	"github.com/spf13/cobra"
+	"golang.org/x/term"
 )
 
 var (
 	Version, GitCommit string
+	templateFuncs      = template.FuncMap{
+		"trim":                    strings.TrimSpace,
+		"trimRightSpace":          trimRightSpace,
+		"trimTrailingWhitespaces": trimRightSpace,
+	}
 )
 
 func init() {
@@ -49,4 +60,39 @@ func Check(err error) {
 		fmt.Printf("%s %v\n", RedS("Error:"), err)
 		os.Exit(1)
 	}
+}
+
+// TODO: templating functions to move into another file.go or package
+
+// GetHelpFunction prints the output on the screen based on a specific template
+func GetHelpFunction(t string) func(*cobra.Command, []string) {
+	return func(c *cobra.Command, s []string) {
+		printCommandHelp(os.Stdout, t, c)
+	}
+}
+
+// getCommandHelp return the help for the single command
+func printCommandHelp(w io.Writer, text string, data interface{}) {
+	t := template.New("top")
+	t.Funcs(templateFuncs)
+	template.Must(t.Parse(text))
+	t.Execute(w, data)
+}
+
+func trimRightSpace(s string) string {
+	return strings.TrimRightFunc(s, unicode.IsSpace)
+}
+
+// appendIfNotPresent will append stringToAppend to the end of s, but only if it's not yet present in s.
+func appendIfNotPresent(s, stringToAppend string) string {
+	if strings.Contains(s, stringToAppend) {
+		return s
+	}
+	return s + " " + stringToAppend
+}
+
+// rpad adds padding to the right of a string.
+func rpad(s string, padding int) string {
+	template := fmt.Sprintf("%%-%ds", padding)
+	return fmt.Sprintf(template, s)
 }
