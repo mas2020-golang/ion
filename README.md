@@ -29,11 +29,10 @@ You can install `ion` using the installing script for Mac and Linux:
 #TODO: continue from here, take note how to download the install.sh and execute...
 ```
 
-## Available commands [todo better]
+## File commands
 
-Follow the list of all the available commands in the current version of `ion`:
+Follow the list of all the file available commands in the current version of `ion`:
 - `tail`: to show the rows of a file/standard input starting from the bottom
 - `tree`: to show folders and files in a graphical representation
 - `count`: to count words and lines of a specific file/standard input
 - `search`: to search a single pattern into the given file/standard input
-- `reshape`: to change the content of a file/standard input based on the given pattern

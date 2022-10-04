@@ -55,4 +55,5 @@ func init() {
 	rootCmd.AddCommand(security.NewCryptoCmd())
 	rootCmd.AddCommand(file.NewCountCmd())
 	rootCmd.AddCommand(file.NewRmCmd())
+	rootCmd.AddCommand(file.NewSearchCmd())
 }
