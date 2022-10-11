@@ -17,11 +17,12 @@ import (
 
 var (
 	nocolors, countLines, countPattern, onlyMatch, invert bool
+	cmd                                                   *cobra.Command
 )
 
 // TODO: put the cmd variable as a private variable for the package so that we can use cmd.Print, Printf etc...
 func NewSearchCmd() *cobra.Command {
-	cmd := &cobra.Command{
+	cmd = &cobra.Command{
 		Args: cobra.MinimumNArgs(1),
 		Use:  "search <PATTERN> <PATH> [...PATH]",
 		Example: `# search this in the demo-file
@@ -30,7 +31,7 @@ $ ion search "this" demo-file`,
 		Long: `The command searches for the pattern given as a first parameter. The command can search
 directly from the standard input or one or more files passed an argument. The pattern is highlighted with red.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			search(cmd, args)
+			search(args)
 		},
 	}
 
@@ -44,11 +45,12 @@ directly from the standard input or one or more files passed an argument. The pa
 	return cmd
 }
 
-func search(cmd *cobra.Command, args []string) {
+func search(args []string) {
 	if len(args) == 0 {
 		//out.Error("", "the pattern is missing")
-		fmt.Fprint(cmd.OutOrStderr(), "the pattern is missing")
-		os.Exit(1)
+		cmd.PrintErr("the pattern is missing")
+		// fmt.Fprint(cmd.OutOrStderr(), "the pattern is missing")
+		return
 	}
 	var (
 		f *os.File = utils.GetBytesFromPipe()
@@ -64,10 +66,14 @@ func search(cmd *cobra.Command, args []string) {
 			f, err := os.Open(args[i])
 			out.CheckErrorAndExit("", "opening the file as an argument", err)
 			if i > 1 {
-				fmt.Println()
+				cmd.Println()
 			}
 			if !countLines && !countPattern {
-				cmd.Printf(fmt.Sprintf("on '%s':\n", out.YellowBoldS(args[i])))
+				if nocolors {
+					cmd.Print(fmt.Sprintf("on '%s':\n", args[i]))
+				} else {
+					cmd.Printf(fmt.Sprintf("on '%s':\n", out.YellowBoldS(args[i])))
+				}
 			}
 			err = readLines(cmd, args[0], f)
 			out.CheckErrorAndExit("", fmt.Sprintf("reading the file %s", args[i]), err)
@@ -145,9 +151,9 @@ func searchLineInMatch(line string, match string) int {
 				output = out.RedS(line[idx : idx+len(match)])
 			}
 			if !countLines && !countPattern {
-				fmt.Print(output)
+				cmd.Print(output)
 				if onlyMatch {
-					fmt.Println()
+					cmd.Println()
 				}
 			}
 			line = line[idx+len(match):]
@@ -167,8 +173,8 @@ func printLine(text string, newLine bool) {
 		return
 	}
 	if newLine {
-		fmt.Println(text)
+		cmd.Println(text)
 	} else {
-		fmt.Print(text)
+		cmd.Print(text)
 	}
 }
