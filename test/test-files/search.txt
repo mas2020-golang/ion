@@ -19,3 +19,5 @@ Flags are:
 --only-match: shows only the substring that match, not the entire line
 --only-filename: shows only the filename when a match is present one or more times
 --only-result: if there is at least one match it returns 1, otherwise 0
+app1username=app1login
+app1password=S0methingS@Str0ng!
