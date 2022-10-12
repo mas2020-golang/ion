@@ -55,7 +55,7 @@ func search(args []string) {
 	var (
 		f *os.File = utils.GetBytesFromPipe()
 	)
-	if f == nil {
+	if f == nil || os.Getenv("ION_DEBUG") == "true" {
 		if len(args) <= 1 {
 			cmd.PrintErr("Error: no files as argument\n")
 			//os.Exit(1)
@@ -75,13 +75,64 @@ func search(args []string) {
 					fmt.Printf(fmt.Sprintf("on '%s':\n", out.YellowBoldS(args[i])))
 				}
 			}
-			err = readLines(cmd, args[0], f)
+			//err = readLines(cmd, args[0], f)
+			err = checkLine(args[0], f)
 			out.CheckErrorAndExit("", fmt.Sprintf("reading the file %s", args[i]), err)
 		}
 	} else {
 		// read from the standard input
-		err := readLines(cmd, args[0], f)
+		err := checkLine(args[0], f)
 		out.CheckErrorAndExit("", "", err)
+	}
+}
+
+// checkLine checks any line to find the pattern matching
+func checkLine(pattern string, f *os.File) error {
+	// remember to close the file at the end of the program
+	defer f.Close()
+	r, err := regexp.Compile(pattern)
+	if err != nil {
+		return err
+	}
+	// read the file line by line using scanner
+	scanner := bufio.NewScanner(f)
+
+	for scanner.Scan() {
+		s := scanner.Text()
+		results := r.FindAllStringIndex(s, -1)
+		if results != nil {
+			// there is at least one match
+			printResults(results, s)
+			fmt.Println()
+		}
+	}
+	return nil
+}
+
+func printResults(results [][]int, line string) {
+	start := 0
+	for _, el := range results {
+		if el[0] > start {
+			Print(line[start:el[0]])
+		} else {
+			PrintColor(line[el[0]:el[1]])
+		}
+		start += (el[1] - el[0])
+	}
+	if start < len(line) {
+		Print(line[start:])
+	}
+}
+
+func Print(text string) {
+	fmt.Print(text)
+}
+
+func PrintColor(text string) {
+	if !nocolors {
+		fmt.Printf("%s", out.RedS(text))
+	} else {
+		Print(text)
 	}
 }
 
