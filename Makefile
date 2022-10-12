@@ -2,7 +2,10 @@ export GIT_COMMIT=$(shell git rev-list -1 --abbrev-commit HEAD)
 
 testing:
 	@echo "==> ion test..."
-	@go test ./... -v
+	@go test github.com/mas2020-golang/ion/cmd/file -coverprofile=coverage.out
+
+coverage:
+	@go tool cover -html=coverage.out
 
 goreleaser:
 	@echo "start building..."
