@@ -20,7 +20,7 @@ var (
 	cmd                                                   *cobra.Command
 )
 
-// TODO: put the cmd variable as a private variable for the package so that we can use cmd.Print, Printf etc...
+// TODO: put the cmd variable as a private variable for the package so that we can use fmt.Print, Printf etc...
 func NewSearchCmd() *cobra.Command {
 	cmd = &cobra.Command{
 		Args: cobra.MinimumNArgs(1),
@@ -66,13 +66,13 @@ func search(args []string) {
 			f, err := os.Open(args[i])
 			out.CheckErrorAndExit("", "opening the file as an argument", err)
 			if i > 1 {
-				cmd.Println()
+				fmt.Println()
 			}
 			if !countLines && !countPattern {
 				if nocolors {
-					cmd.Print(fmt.Sprintf("on '%s':\n", args[i]))
+					fmt.Print(fmt.Sprintf("on '%s':\n", args[i]))
 				} else {
-					cmd.Printf(fmt.Sprintf("on '%s':\n", out.YellowBoldS(args[i])))
+					fmt.Printf(fmt.Sprintf("on '%s':\n", out.YellowBoldS(args[i])))
 				}
 			}
 			err = readLines(cmd, args[0], f)
@@ -112,17 +112,17 @@ func readLines(cmd *cobra.Command, pattern string, f *os.File) error {
 			mLines++
 			if invert && !countLines {
 				// lines that do not match with the patterns
-				cmd.Println(scanner.Text())
+				fmt.Println(scanner.Text())
 			}
 		}
 		l++
 	}
 
 	if countLines {
-		cmd.Println(mLines)
+		fmt.Println(mLines)
 	}
 	if countPattern && !invert {
-		cmd.Println(n)
+		fmt.Println(n)
 	}
 	// verbose mode
 	if verbose {
@@ -151,9 +151,9 @@ func searchLineInMatch(line string, match string) int {
 				output = out.RedS(line[idx : idx+len(match)])
 			}
 			if !countLines && !countPattern {
-				cmd.Print(output)
+				fmt.Print(output)
 				if onlyMatch {
-					cmd.Println()
+					fmt.Println()
 				}
 			}
 			line = line[idx+len(match):]
@@ -173,8 +173,8 @@ func printLine(text string, newLine bool) {
 		return
 	}
 	if newLine {
-		cmd.Println(text)
+		fmt.Println(text)
 	} else {
-		cmd.Print(text)
+		fmt.Print(text)
 	}
 }
