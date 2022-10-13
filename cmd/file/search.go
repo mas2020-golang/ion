@@ -66,7 +66,7 @@ func search(args []string) {
 			f, err := os.Open(args[i])
 			out.CheckErrorAndExit("", "opening the file as an argument", err)
 
-			if !countLines && !countPattern {
+			if !countLines && !countPattern && len(args) > 2 {
 				if nocolors {
 					cmd.Printf("=> on '%s':\n", args[i])
 				} else {

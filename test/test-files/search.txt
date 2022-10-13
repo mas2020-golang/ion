@@ -11,7 +11,7 @@ Flags are:
 --insensitive: the search is case insensitive
 --words: search only for an entire word matching
 --after <NUMBER>: shows also the NUMBER of lines after the match
---before <NUMBER>: shows also the NUMBER of lines before the match 
+--before <NUMBER>: shows also the NUMBER of lines before the match
 --recursive: when the input is a folder searches in the sub folders too
 --invert: shows the lines that doesn’t match with the pattern
 --count-lines: shows only how many lines match with the pattern
