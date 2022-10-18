@@ -101,14 +101,14 @@ func checkLine(pattern string, f *os.File) error {
 		s := scanner.Text()
 		results := r.FindAllStringIndex(s, -1)
 		if results != nil {
-			out.TraceLog("", fmt.Sprintf("line: %s, results: %v", s, results))
+			out.TraceLog("", fmt.Sprintf("line => %s, results => %v\n", s, results))
 			// there is at least one match
 			printResults(results, s)
 			matchLines++
 			matchPattern += len(results)
 		}
 	}
-	// print only the matches patters
+	// print only the matches patterns
 	if onlyMatch {
 		for _, el := range matchElems {
 			PrintColor(el + "\n")
@@ -146,6 +146,9 @@ func printResults(results [][]int, line string) {
 	if !onlyMatch {
 		if start < len(line) {
 			Print(line[start:])
+			cmd.Println()
+		}
+		if start == len(line) {
 			cmd.Println()
 		}
 	}

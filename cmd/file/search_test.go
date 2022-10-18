@@ -34,22 +34,29 @@ func TestSearch(t *testing.T) {
 			"<NUMBER>",
 			"2\n",
 			-1,
-			[]string{"--no-colors", "--count-pattern"},
+			[]string{"--no-colors", "--count-lines"},
 		},
 		{
 			"../../test/test-files/search.txt",
 			"<NUMBER>",
 			"2\n",
 			-1,
+			[]string{"--no-colors", "--count-pattern"},
+		},
+		{
+			"../../test/test-files/search.txt",
+			"",
+			"23\n",
+			-1,
 			[]string{"--no-colors", "--count-lines"},
 		},
 	}
 
-	cmd := NewSearchCmd()
+	//cmd := NewSearchCmd()
 	for _, c := range cases {
+		cmd := NewSearchCmd()
 		w := bytes.NewBuffer(nil)
 		cmd.SetOut(w)
-		//fmt.Println(c)
 		args := []string{c.pattern, c.file}
 		if c.flags != nil {
 			for _, f := range c.flags {
