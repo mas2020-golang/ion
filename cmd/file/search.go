@@ -16,6 +16,7 @@ import (
 
 var (
 	nocolors, countLines, countPattern, onlyMatch, invert bool
+	insensitive                                           bool
 	cmd                                                   *cobra.Command
 	matchLines, matchPattern                              int
 	matchElems                                            []string
@@ -40,8 +41,9 @@ directly from the standard input or one or more files passed an argument. The pa
 	cmd.Flags().BoolVarP(&countPattern, "count-pattern", "p", false, "shows only how many time a pattern is in match")
 	cmd.Flags().BoolVarP(&onlyMatch, "only-match", "o", false, "shows only the substring that match, not the entire line")
 	cmd.Flags().BoolVarP(&nocolors, "no-colors", "n", false, "no colors on the standard output")
-	cmd.Flags().BoolVarP(&invert, "invert", "i", false, "shows the lines that doesn't match with the pattern") //TODO
-	cmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode active")                               //TODO
+	cmd.Flags().BoolVarP(&invert, "invert", "t", false, "shows the lines that doesn't match with the pattern") //TODO
+	cmd.Flags().BoolVarP(&insensitive, "insensitive", "i", false, "to match with no case sensitivity")
+	cmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode active") //TODO
 	return cmd
 }
 
@@ -90,6 +92,9 @@ func search(args []string) {
 func checkLine(pattern string, f *os.File) error {
 	// remember to close the file at the end of the program
 	defer f.Close()
+	if insensitive {
+		pattern = "(?i)" + pattern
+	}
 	r, err := regexp.Compile(pattern)
 	if err != nil {
 		return err

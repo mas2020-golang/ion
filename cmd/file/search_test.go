@@ -50,6 +50,13 @@ func TestSearch(t *testing.T) {
 			-1,
 			[]string{"--no-colors", "--count-lines"},
 		},
+		{
+			"../../test/test-files/search.txt",
+			"number",
+			"5\n",
+			-1,
+			[]string{"--no-colors", "-i", "-p"},
+		},
 	}
 
 	//cmd := NewSearchCmd()
