@@ -16,10 +16,10 @@ import (
 
 var (
 	nocolors, countLines, countPattern, onlyMatch, invert bool
-	insensitive                                           bool
+	insensitive, onlyResult                               bool
 	cmd                                                   *cobra.Command
-	matchLines, matchPattern                              int
-	matchElems                                            []string
+	matchLines, matchPattern, after, before, currentLine  int
+	matchElems, lines                                     []string
 )
 
 func NewSearchCmd() *cobra.Command {
@@ -35,14 +35,16 @@ directly from the standard input or one or more files passed an argument. The pa
 			search(args)
 		},
 	}
-
+	cmd.SetOut(os.Stdout)
 	// flags
 	cmd.Flags().BoolVarP(&countLines, "count-lines", "l", false, "shows only how many lines match with the pattern")
 	cmd.Flags().BoolVarP(&countPattern, "count-pattern", "p", false, "shows only how many time a pattern is in match")
-	cmd.Flags().BoolVarP(&onlyMatch, "only-match", "o", false, "shows only the substring that match, not the entire line")
+	cmd.Flags().BoolVarP(&onlyMatch, "only-match", "m", false, "shows only the substring that match, not the entire line")
 	cmd.Flags().BoolVarP(&nocolors, "no-colors", "n", false, "no colors on the standard output")
-	cmd.Flags().BoolVarP(&invert, "invert", "t", false, "shows the lines that doesn't match with the pattern") //TODO
+	cmd.Flags().BoolVarP(&invert, "invert", "t", false, "shows the lines that doesn't match with the pattern")
 	cmd.Flags().BoolVarP(&insensitive, "insensitive", "i", false, "to match with no case sensitivity")
+	cmd.Flags().BoolVarP(&onlyResult, "only-result", "r", false, "if there is at least one match it returns 1, otherwise 0")
+	cmd.Flags().IntVarP(&before, "before", "B", 0, "shows also the NUMBER of lines before the match")
 	cmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode active") //TODO
 	return cmd
 }
@@ -90,6 +92,7 @@ func search(args []string) {
 
 // checkLine checks any line to find the pattern matching
 func checkLine(pattern string, f *os.File) error {
+	var found int
 	// remember to close the file at the end of the program
 	defer f.Close()
 	if insensitive {
@@ -104,14 +107,42 @@ func checkLine(pattern string, f *os.File) error {
 
 	for scanner.Scan() {
 		s := scanner.Text()
+		// save the lines in case -B or -A is given
+		if before > 0 || after > 0 {
+			lines = append(lines, s)
+		}
 		results := r.FindAllStringIndex(s, -1)
 		if results != nil {
+			// at the first match, if onlyResult exits
+			if onlyResult {
+				found = 1
+				break
+			}
+
+			// if invert do not print the match
+			if invert {
+				continue
+			}
 			out.TraceLog("", fmt.Sprintf("line => %s, results => %v\n", s, results))
 			// there is at least one match
 			printResults(results, s)
 			matchLines++
 			matchPattern += len(results)
+		} else {
+			// show the entire line non in match with the patter
+			if invert {
+				cmd.Println(s)
+			}
 		}
+		currentLine++
+	}
+	// --invert is not compatible with onlyMatch, countLines, countPattern, onlyResult
+	if invert {
+		return nil
+	}
+	if onlyResult {
+		cmd.Println(found)
+		return nil
 	}
 	// print only the matches patterns
 	if onlyMatch {
@@ -124,7 +155,7 @@ func checkLine(pattern string, f *os.File) error {
 		cmd.Println(matchLines)
 	}
 	// print only the number of times the pattern is matching
-	if countPattern && !invert {
+	if countPattern {
 		cmd.Println(matchPattern)
 	}
 	return nil
@@ -140,6 +171,7 @@ func printResults(results [][]int, line string) {
 		if onlyMatch {
 			continue
 		}
+		//printAfterBefore()
 		if el[0] > start {
 			Print(line[start:el[0]])
 			PrintColor(line[el[0]:el[1]])
@@ -168,5 +200,20 @@ func PrintColor(text string) {
 		cmd.Printf("%s", out.RedS(text))
 	} else {
 		Print(text)
+	}
+}
+
+func printAfterBefore() {
+	// TODO: the same line has to be printed only once
+	start, end := 0, 0
+	if currentLine == 0 {
+		return
+	}
+	end = currentLine - 1
+	if currentLine-before > 0 {
+		start = currentLine - before
+	}
+	for i := start; i <= end; i++ {
+		cmd.Println(lines[i])
 	}
 }

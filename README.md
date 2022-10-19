@@ -36,3 +36,29 @@ Follow the list of all the file available commands in the current version of `io
 - `tree`: to show folders and files in a graphical representation
 - `count`: to count words and lines of a specific file/standard input
 - `search`: to search a single pattern into the given file/standard input
+
+### Search command
+The command to exec a search in the standard input is search:
+
+```shell
+ion search [FLAGS] <PATTERN> <PATH> [ …]
+```
+
+At the moment (v0.3.0) the search command cannot search into a folder, this feature will be implemented soon.
+The command searches for the PATTERN in the PATH (can be one or more paths). The PATTERN is a regular expression.
+The output is done by the lines of the input that contains the pattern. In case the search is run on more files the output is grouped by each file. The matched pattern is highlighted.
+
+**Flags** are:
+- --no-colors: no highlight colors in the output
+- --verbose: gives back the number of found occurrences and some details on the PATH
+- --insensitive: the search is case insensitive
+- --words: search only for an entire word matching
+- --after <NUMBER>: shows also the NUMBER of lines after the match
+- --before <NUMBER>: shows also the NUMBER of lines before the match 
+- --recursive: when the input is a folder searches in the sub folders too
+- --invert: shows the lines that doesn’t match with the pattern. With this flag the count-lines, count-pattern and only-match flags are disabled.
+- --count-lines: shows only how many lines match with the pattern (output comes first then count-pattern in case are both present)
+- --count-pattern: shows only how many time a pattern is in match
+- --only-match: shows only the substring that match, not the entire line
+- --only-filename: shows only the filename when a match is present one or more times
+- --only-result: if there is at least one match it returns 1, otherwise 0

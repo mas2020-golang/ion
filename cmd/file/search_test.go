@@ -45,6 +45,13 @@ func TestSearch(t *testing.T) {
 		},
 		{
 			"../../test/test-files/search.txt",
+			"<NUMBER1>",
+			"0\n",
+			-1,
+			[]string{"--no-colors", "-r"}, // --only-result
+		},
+		{
+			"../../test/test-files/search.txt",
 			"",
 			"23\n",
 			-1,
@@ -52,10 +59,10 @@ func TestSearch(t *testing.T) {
 		},
 		{
 			"../../test/test-files/search.txt",
-			"number",
-			"5\n",
+			"the",
+			"This is a test for search command.\n\n\nFlags are:\n--words: search only for an entire word matching\n--count-pattern: shows only how many time a pattern is in match\napp1username=app1login\napp1password=S0methingS@Str0ng!\n",
 			-1,
-			[]string{"--no-colors", "-i", "-p"},
+			[]string{"--no-colors", "-t", "-i"},
 		},
 	}
 

@@ -1,8 +1,0 @@
-match line
-line 1
-test
-test1
-test2
-match line AAA
-match line 2
-line 2
