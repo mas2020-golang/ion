@@ -20,6 +20,7 @@ var (
 	cmd                                                   *cobra.Command
 	matchLines, matchPattern, after, before, currentLine  int
 	matchElems, lines                                     []string
+	prLines                                               map[int]bool // save the printed lines
 )
 
 func NewSearchCmd() *cobra.Command {
@@ -51,6 +52,7 @@ directly from the standard input or one or more files passed an argument. The pa
 
 func search(args []string) {
 	out.TraceLog("", "search starting...")
+	prLines = make(map[int]bool)
 	if len(args) == 0 {
 		//out.Error("", "the pattern is missing")
 		cmd.PrintErr("the pattern is missing")
@@ -171,7 +173,7 @@ func printResults(results [][]int, line string) {
 		if onlyMatch {
 			continue
 		}
-		//printAfterBefore()
+		printBefore()
 		if el[0] > start {
 			Print(line[start:el[0]])
 			PrintColor(line[el[0]:el[1]])
@@ -184,6 +186,7 @@ func printResults(results [][]int, line string) {
 		if start < len(line) {
 			Print(line[start:])
 			cmd.Println()
+			prLines[currentLine] = true
 		}
 		if start == len(line) {
 			cmd.Println()
@@ -203,7 +206,7 @@ func PrintColor(text string) {
 	}
 }
 
-func printAfterBefore() {
+func printBefore() {
 	// TODO: the same line has to be printed only once
 	start, end := 0, 0
 	if currentLine == 0 {
@@ -214,6 +217,11 @@ func printAfterBefore() {
 		start = currentLine - before
 	}
 	for i := start; i <= end; i++ {
-		cmd.Println(lines[i])
+		// print only if the was not already printed
+		if ok, _ := prLines[i]; !ok {
+			cmd.Println(lines[i])
+			prLines[i] = true
+			out.TraceLog("printBefore", fmt.Sprintf("save line %d", i))
+		}
 	}
 }

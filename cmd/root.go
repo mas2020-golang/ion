@@ -75,7 +75,7 @@ func setLogs() {
 	}
 	// choose to colorize the log output
 	if len(os.Getenv("ION_LOGLEVEL")) > 0 {
-		if os.Getenv("ION_LOGLEVEL") == "true" {
+		if os.Getenv("ION_LOGCOLOR") == "true" {
 			logrus.SetFormatter(&output.TextColorFormatter{})
 		} else {
 			logrus.SetFormatter(&output.TextFormatter{})
