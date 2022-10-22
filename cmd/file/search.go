@@ -16,9 +16,10 @@ import (
 
 var (
 	nocolors, countLines, countPattern, onlyMatch, invert bool
-	insensitive, onlyResult                               bool
+	insensitive, onlyResult, onlyFilename                 bool
 	cmd                                                   *cobra.Command
-	matchLines, matchPattern, after, before, currentLine  int
+	matchLines, matchPattern, after                       int
+	before, currentLine, fCounter                         int
 	prLines                                               map[int]bool // save the printed lines
 	mLines                                                map[int]string
 	mLinesMatch                                           map[int][][]int
@@ -31,6 +32,7 @@ func NewSearchCmd() *cobra.Command {
 		Example: `# search this in the demo-file
 $ ion search "this" demo-file`,
 		Short: "Search for the given pattern into the standard input or one or more files",
+		//TODO: improve the description
 		Long: `The command searches for the pattern given as a first parameter. The command can search
 directly from the standard input or one or more files passed an argument. The pattern is highlighted with red.`,
 		Run: func(cmd *cobra.Command, args []string) {
@@ -46,8 +48,9 @@ directly from the standard input or one or more files passed an argument. The pa
 	cmd.Flags().BoolVarP(&invert, "invert", "t", false, "shows the lines that doesn't match with the pattern")
 	cmd.Flags().BoolVarP(&insensitive, "insensitive", "i", false, "to match with no case sensitivity")
 	cmd.Flags().BoolVarP(&onlyResult, "only-result", "r", false, "if there is at least one match it returns 1, otherwise 0")
-	cmd.Flags().IntVarP(&before, "before", "B", 0, "shows also the NUMBER of lines before the match") //TODO: to implement
+	cmd.Flags().IntVarP(&before, "before", "B", 0, "shows also the NUMBER of lines before the match")
 	cmd.Flags().IntVarP(&after, "after", "A", 0, "shows also the NUMBER of lines after the match")
+	cmd.Flags().BoolVarP(&onlyFilename, "only-filename", "f", false, "shows only the filename when a pattern matches one or several times") //TODO: to implement
 	return cmd
 }
 
@@ -74,29 +77,35 @@ func search(args []string) {
 			f, err := os.Open(args[i])
 			defer f.Close()
 			out.CheckErrorAndExit("", "opening the file as an argument", err)
-
-			if !countLines && !countPattern && len(args) > 2 {
-				if nocolors {
-					cmd.Printf("=> on '%s':\n", args[i])
-				} else {
-					cmd.Printf("=> on '%s':\n", out.YellowBoldS(args[i]))
-				}
-			}
-			err = startSearching(args[0], f)
+			// search
+			err = startSearching(args[0], f, args[i])
 			out.CheckErrorAndExit("", "", err)
 		}
 	} else {
-		err := startSearching(args[0], f)
+		// search
+		err := startSearching(args[0], f, "")
 		out.CheckErrorAndExit("", "", err)
 	}
 }
 
 // Start the searching
-func startSearching(pattern string, f *os.File) error {
+func startSearching(pattern string, f *os.File, filename string) error {
 	err := readLines(pattern, f)
 	if err != nil {
 		return err
 	}
+	// print the name of the files only if there is a match and the file passed are more that one
+	// TODO: print also if it is a folder
+	if len(mLinesMatch) > 0 {
+		if len(os.Args) > 4 {
+			if nocolors {
+				cmd.Printf("> on '%s':\n", filename)
+			} else {
+				cmd.Printf("> on '%s':\n", out.YellowBoldS(filename))
+			}
+		}
+	}
+
 	// check the flags and print the result
 	checkFlags()
 	out.TraceLog("search", fmt.Sprintf("matched lines: %v", mLinesMatch))
@@ -190,6 +199,7 @@ func printLinesInMatch() {
 			continue
 		}
 		l := mLines[i] // line to print
+		printBefore(i)
 		printMatchLine(l, mLinesMatch[i], i)
 		// print After
 		printAfter(i)
@@ -212,7 +222,7 @@ func printMatchLine(l string, elems [][]int, indexL int) {
 		p = m[1]
 	}
 	// print the end of the sprint (eventually)
-	if p < len(l) {
+	if p <= len(l) {
 		cmd.Println(l[p:])
 	}
 	prLines[indexL] = true
@@ -261,6 +271,7 @@ func printAfter(currentPrintL int) {
 		// if the lines has been already printed move on
 		if _, ok := prLines[currentPrintL]; ok {
 			currentPrintL++
+			p--
 			continue
 		}
 		// if the line match the pattern print highlighting the matches else it print normally
@@ -273,5 +284,29 @@ func printAfter(currentPrintL int) {
 		// move to the next line and decrease the pointer
 		currentPrintL++
 		p--
+	}
+}
+
+// printBefore prints the n lines before the line in match with the pattern
+func printBefore(currentPrintL int) {
+	if currentPrintL == 0 || before == 0 {
+		return
+	}
+	p := currentPrintL - before
+	if currentPrintL-before < 0 {
+		p = 0
+	}
+
+	for currentPrintL > p {
+		out.TraceLog("printBefore", fmt.Sprintf("currentPrintL: %d, currentLine: %d, p: %d", currentPrintL, currentLine, p))
+		// if the lines has been already printed move on
+		if _, ok := prLines[p]; ok {
+			p++
+			continue
+		}
+		// print the line
+		cmd.Println(mLines[p])
+		prLines[p] = true
+		p++
 	}
 }
