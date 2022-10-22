@@ -9,7 +9,6 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/mas2020-golang/goutils/output"
 	out "github.com/mas2020-golang/goutils/output"
 	"github.com/mas2020-golang/ion/packages/utils"
 	"github.com/spf13/cobra"
@@ -20,9 +19,9 @@ var (
 	insensitive, onlyResult                               bool
 	cmd                                                   *cobra.Command
 	matchLines, matchPattern, after, before, currentLine  int
-	matchElems, lines                                     []string
 	prLines                                               map[int]bool // save the printed lines
-	prAfter                                               map[int]bool // lines to print after the match
+	mLines                                                map[int]string
+	mLinesMatch                                           map[int][][]int
 )
 
 func NewSearchCmd() *cobra.Command {
@@ -47,16 +46,14 @@ directly from the standard input or one or more files passed an argument. The pa
 	cmd.Flags().BoolVarP(&invert, "invert", "t", false, "shows the lines that doesn't match with the pattern")
 	cmd.Flags().BoolVarP(&insensitive, "insensitive", "i", false, "to match with no case sensitivity")
 	cmd.Flags().BoolVarP(&onlyResult, "only-result", "r", false, "if there is at least one match it returns 1, otherwise 0")
-	cmd.Flags().IntVarP(&before, "before", "B", 0, "shows also the NUMBER of lines before the match")
+	cmd.Flags().IntVarP(&before, "before", "B", 0, "shows also the NUMBER of lines before the match") //TODO: to implement
 	cmd.Flags().IntVarP(&after, "after", "A", 0, "shows also the NUMBER of lines after the match")
-	cmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode active") //TODO
 	return cmd
 }
 
 func search(args []string) {
 	out.TraceLog("", "search starting...")
 	prLines = make(map[int]bool)
-	prAfter = make(map[int]bool)
 	if len(args) == 0 {
 		//out.Error("", "the pattern is missing")
 		cmd.PrintErr("the pattern is missing")
@@ -64,6 +61,7 @@ func search(args []string) {
 		return
 	}
 	var (
+		// read from the standard input
 		f *os.File = utils.GetBytesFromPipe()
 	)
 	if f == nil || os.Getenv("ION_DEBUG") == "true" {
@@ -71,9 +69,10 @@ func search(args []string) {
 			cmd.PrintErrln("Error: no files as argument")
 			os.Exit(1)
 		}
-		// load the file into the buffer
+		// open the files
 		for i := 1; i < len(args); i++ {
 			f, err := os.Open(args[i])
+			defer f.Close()
 			out.CheckErrorAndExit("", "opening the file as an argument", err)
 
 			if !countLines && !countPattern && len(args) > 2 {
@@ -83,173 +82,196 @@ func search(args []string) {
 					cmd.Printf("=> on '%s':\n", out.YellowBoldS(args[i]))
 				}
 			}
-			//err = readLines(cmd, args[0], f)
-			matchElems = []string{}
-			matchLines, matchPattern = 0, 0
-			err = checkLine(args[0], f)
+			err = startSearching(args[0], f)
 			out.CheckErrorAndExit("", "", err)
 		}
 	} else {
-		// read from the standard input
-		err := checkLine(args[0], f)
+		err := startSearching(args[0], f)
 		out.CheckErrorAndExit("", "", err)
 	}
 }
 
-// checkLine checks any line to find the pattern matching
-func checkLine(pattern string, f *os.File) error {
-	var found int
-	// remember to close the file at the end of the program
-	defer f.Close()
-	if insensitive {
-		pattern = "(?i)" + pattern
+// Start the searching
+func startSearching(pattern string, f *os.File) error {
+	err := readLines(pattern, f)
+	if err != nil {
+		return err
 	}
+	// check the flags and print the result
+	checkFlags()
+	out.TraceLog("search", fmt.Sprintf("matched lines: %v", mLinesMatch))
+	return nil
+}
+
+// readLines reads the file, save the content and save the lines in match
+// with the pattern
+func readLines(pattern string, f *os.File) error {
+	mLines = make(map[int]string)
+	mLinesMatch = make(map[int][][]int)
+
 	r, err := regexp.Compile(pattern)
 	if err != nil {
 		return err
 	}
+	// check --insentive flag
+	if insensitive {
+		pattern = "(?i)" + pattern
+	}
+
 	// read the file line by line using scanner
 	scanner := bufio.NewScanner(f)
 
 	for scanner.Scan() {
-		currentLine++
 		s := scanner.Text()
-		// save the lines in case -B or -A is given
-		if before > 0 || after > 0 {
-			lines = append(lines, s)
-		}
+		// add the line
+		mLines[currentLine] = s
 		results := r.FindAllStringIndex(s, -1)
 		if results != nil {
-			// at the first match, if onlyResult exits
-			if onlyResult {
-				found = 1
-				break
-			}
-
-			// if invert do not print the match
-			if invert {
-				continue
-			}
 			out.TraceLog("", fmt.Sprintf("line num. %d, line => %s, results => %v\n", currentLine, s, results))
-			// there is at least one match
-			printResults(results, s)
-			matchLines++
-			matchPattern += len(results)
-		} else {
-			// show the entire line non in match with the patter
-			if invert {
-				cmd.Println(s)
-			}
+			mLinesMatch[currentLine] = results
+			// the lines in match are set as to be already printed (needed for the printAfter and the printBefore)
+			//prLines[currentLine] = true
 		}
-	}
-	// --invert is not compatible with onlyMatch, countLines, countPattern, onlyResult
-	if invert {
-		return nil
-	}
-	if onlyResult {
-		cmd.Println(found)
-		return nil
-	}
-	// print only the matches patterns
-	if onlyMatch {
-		for _, el := range matchElems {
-			PrintColor(el + "\n")
-		}
-	}
-	// print only the lines in match with the pattern
-	if countLines {
-		cmd.Println(matchLines)
-	}
-	// print only the number of times the pattern is matching
-	if countPattern {
-		cmd.Println(matchPattern)
+		currentLine++
 	}
 	return nil
 }
 
-func printResults(results [][]int, line string) {
-	if countLines || countPattern {
+// checkFlags elaborates the result based on some flags that have special behaviours:
+// --count-lines, --count-pattern, --only-match
+// Returns true in case no more output is needed
+func checkFlags() {
+	// check --only-result
+	if onlyResult {
+		if len(mLinesMatch) > 0 {
+			cmd.Println(1)
+			return
+		}
+		cmd.Println(0)
 		return
 	}
-	start := 0
-	for _, el := range results {
-		matchElems = append(matchElems, line[el[0]:el[1]])
-		if onlyMatch {
+	// print only the lines
+	if countLines {
+		cmd.Println(len(mLinesMatch))
+		return
+	}
+	// print only the number of elements in match with the pattern
+	if countPattern {
+		i := 0
+		for k, _ := range mLinesMatch {
+			i += len(mLinesMatch[k])
+		}
+		cmd.Println(i)
+		return
+	}
+
+	// print only the match elements
+	if onlyMatch {
+		printMatch(true)
+		return
+	}
+
+	// check --invert
+	if invert {
+		printInvert()
+		return
+	}
+
+	// print the lines in match
+	printLinesInMatch()
+}
+
+// printLinesInMatch prints the single line in match
+func printLinesInMatch() {
+	// cycle the match lines
+	for i := 0; i < currentLine; i++ {
+		// continue if no match or it is not already printed
+		if _, ok := mLinesMatch[i]; !ok {
 			continue
 		}
-		printBefore()
-		if el[0] > start {
-			Print(line[start:el[0]])
-			PrintColor(line[el[0]:el[1]])
-		} else {
-			PrintColor(line[el[0]:el[1]])
-		}
-		start = el[1]
-	}
-	if !onlyMatch {
-		// print the rest of the line
-		if start < len(line) {
-			Print(line[start:])
-			cmd.Println()
-			prLines[currentLine] = true
-		}
-		if start == len(line) {
-			cmd.Println()
-		}
-		setAfter()
-		printAfter()
+		l := mLines[i] // line to print
+		printMatchLine(l, mLinesMatch[i], i)
+		// print After
+		printAfter(i)
 	}
 }
 
-func Print(text string) {
-	cmd.Print(text)
-}
-
-func PrintColor(text string) {
-	if !nocolors {
-		cmd.Printf("%s", out.RedS(text))
-	} else {
-		Print(text)
-	}
-}
-
-func printBefore() {
-	start, end := 0, 0
-	if currentLine == 1 {
+// printMatchLine prints the line in match
+func printMatchLine(l string, elems [][]int, indexL int) {
+	p := 0
+	// skip it is already printed
+	if _, ok := prLines[indexL]; ok {
 		return
 	}
-	end = currentLine - 1
-	if currentLine-before > 0 {
-		start = currentLine - before
+	for _, m := range elems {
+		if m[0] > p {
+			cmd.Print(l[p:m[0]])
+		}
+		// print the match
+		cmd.Print(out.RedBoldS(l[m[0]:m[1]]))
+		p = m[1]
 	}
-	for i := start; i <= end; i++ {
-		// print only if the was not already printed
-		if ok, _ := prLines[i]; !ok {
-			cmd.Println(lines[i])
-			prLines[i] = true
-			out.TraceLog("printBefore", fmt.Sprintf("save line %d", i))
+	// print the end of the sprint (eventually)
+	if p < len(l) {
+		cmd.Println(l[p:])
+	}
+	prLines[indexL] = true
+}
+
+// Print the matching elements on the standard output
+func printMatch(newLine bool) {
+	for k, v := range mLinesMatch {
+		s := mLines[k]
+		for _, m := range v {
+			if newLine {
+				cmd.Println(s[m[0]:m[1]])
+			} else {
+				cmd.Print(s[m[0]:m[1]])
+			}
 		}
 	}
 }
 
-// set what to print before the match
-func setAfter() {
-	if after > 0 {
-		for i := 1; i <= after; i++ {
-			prAfter[currentLine+i] = true
+// printInvert prints the line that does not contain any
+// match with the pattern
+func printInvert() {
+	// cycle line by line
+	for i := 0; i < currentLine; i++ {
+		if _, ok := mLinesMatch[i]; !ok {
+			cmd.Println(mLines[i])
 		}
 	}
-	output.TraceLog("", fmt.Sprintf("after lines: %v", prAfter))
 }
 
-// set what to print after the match
-func printAfter() {
-	for k, _ := range prLines {
-		// print only if the was not already printed
-		if ok, _ := prAfter[k]; !ok {
-			cmd.Println(lines[k])
-			prLines[k] = true
-			out.TraceLog("printAfter", fmt.Sprintf("save line %d", k))
+// printAfter prints the lines after the matches. It happens after
+// the print of each match pattern. It prints the line only if it has been not
+// already printed. currentPrintL contains the value of the current line that
+// has been printed on the screen.
+func printAfter(currentPrintL int) {
+	out.TraceLog("printAfter", fmt.Sprintf("start currentPrintL: %d, currentLine: %d, after: %d", currentPrintL, currentLine, after))
+	p := after
+	// currentPrintL is the end of the file
+	if currentPrintL == currentLine || p == 0 {
+		return
+	}
+	// move forward to the next line to print
+	currentPrintL++
+	for currentPrintL <= currentLine && p > 0 {
+		out.TraceLog("printAfter", fmt.Sprintf("currentPrintL: %d, currentLine: %d, p: %d", currentPrintL, currentLine, p))
+		// if the lines has been already printed move on
+		if _, ok := prLines[currentPrintL]; ok {
+			currentPrintL++
+			continue
 		}
+		// if the line match the pattern print highlighting the matches else it print normally
+		if _, ok := mLinesMatch[currentPrintL]; ok {
+			printMatchLine(mLines[currentPrintL], mLinesMatch[currentPrintL], currentPrintL)
+		} else {
+			cmd.Println(mLines[currentPrintL])
+			prLines[currentPrintL] = true
+		}
+		// move to the next line and decrease the pointer
+		currentPrintL++
+		p--
 	}
 }
