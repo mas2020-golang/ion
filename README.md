@@ -53,7 +53,7 @@ The output is done by the lines of the input that contains the pattern. In case 
 - --insensitive: the search is case insensitive
 - --after <NUMBER>: shows also the NUMBER of lines after the match
 - --before <NUMBER>: shows also the NUMBER of lines before the match 
-- --recursive: when the input is a folder searches in the sub folders too
+- --recursive: if the PATH is a folder searches in the sub folders too and not only in its first level
 - --invert: shows the lines that doesn’t match with the pattern. With this flag the count-lines, count-pattern and only-match flags are disabled.
 - --count-lines: shows only how many lines match with the pattern (output comes first then count-pattern in case are both present)
 - --count-pattern: shows only how many time a pattern is in match
@@ -97,4 +97,14 @@ text:
           @echo "start building..."
   > on 'Makefile-test':
           @echo "==> ion test..."
+  ```
+
+- when the **PATH is a folder** ion searches in the first level unless the `--recursive` is given. You can have multiple PATHs as input. The PATH can be a single file or a folder. Example:
+
+  ```shell
+  $ ion search 'line2' /Users/andrea/Downloads/tmp/search --recursive
+  > '/Users/andrea/Downloads/tmp/search/file2':
+  line2
+  > '/Users/andrea/Downloads/tmp/search/level2/file2':
+  line2
   ```

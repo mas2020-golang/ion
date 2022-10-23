@@ -6,7 +6,9 @@ package file
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"regexp"
 
 	out "github.com/mas2020-golang/goutils/output"
@@ -16,10 +18,11 @@ import (
 
 var (
 	nocolors, countLines, countPattern, onlyMatch, invert bool
-	insensitive, onlyResult, onlyFilename                 bool
+	insensitive, onlyResult, onlyFilename, isDir          bool
+	recursive                                             bool
 	cmd                                                   *cobra.Command
 	matchLines, matchPattern, after                       int
-	before, currentLine, fCounter                         int
+	before, currentLine, fCounter, level                  int
 	prLines                                               map[int]bool // save the printed lines
 	mLines                                                map[int]string
 	mLinesMatch                                           map[int][][]int
@@ -32,9 +35,8 @@ func NewSearchCmd() *cobra.Command {
 		Example: `# search this in the demo-file
 $ ion search "this" demo-file`,
 		Short: "Search for the given pattern into the standard input or one or more files",
-		//TODO: improve the description
-		Long: `The command searches for the pattern given as a first parameter. The command can search
-directly from the standard input or one or more files passed an argument. The pattern is highlighted with red.`,
+		Long: `The command searches for the given pattern. The command can search
+directly from the standard input, one or more files or directories passed an argument. The pattern is highlighted with the red color.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			search(args)
 		},
@@ -51,6 +53,7 @@ directly from the standard input or one or more files passed an argument. The pa
 	cmd.Flags().IntVarP(&before, "before", "B", 0, "shows also the NUMBER of lines before the match")
 	cmd.Flags().IntVarP(&after, "after", "A", 0, "shows also the NUMBER of lines after the match")
 	cmd.Flags().BoolVarP(&onlyFilename, "only-filename", "f", false, "shows only the filename when a pattern matches one or several times") //TODO: to implement
+	cmd.Flags().BoolVarP(&recursive, "recursive", "d", false, "if the PATH is a folder searches in the sub folders too and not only in its first level")
 	return cmd
 }
 
@@ -74,11 +77,9 @@ func search(args []string) {
 		}
 		// open the files
 		for i := 1; i < len(args); i++ {
-			f, err := os.Open(args[i])
-			defer f.Close()
-			out.CheckErrorAndExit("", "opening the file as an argument", err)
+			level = 0
 			// search
-			err = startSearching(args[0], f, args[i])
+			err := searchInFiles(args[0], args[i])
 			out.CheckErrorAndExit("", "", err)
 		}
 	} else {
@@ -88,6 +89,46 @@ func search(args []string) {
 	}
 }
 
+// searchInFiles opens each file and start for searching
+func searchInFiles(pattern string, path string) error {
+	fi, err := os.Stat(path)
+	if err != nil {
+		return err
+	}
+
+	// case path is a dir
+	if fi.IsDir() {
+		level++
+		// if not recursive stop at level 1
+		if level > 1 && !recursive {
+			return nil
+		}
+		isDir = true
+		fis, err := ioutil.ReadDir(path)
+		if err != nil {
+			return fmt.Errorf("ReadDir error for the path %s, error: %v", path, err)
+		}
+
+		for _, fi := range fis {
+			err = searchInFiles(pattern, filepath.Join(path, fi.Name()))
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	// case path is a file
+	f, err := os.Open(path)
+	defer f.Close()
+	out.CheckErrorAndExit("", "opening the file as an argument", err)
+	// search
+	err = startSearching(pattern, f, path)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // Start the searching
 func startSearching(pattern string, f *os.File, filename string) error {
 	err := readLines(pattern, f)
@@ -95,13 +136,12 @@ func startSearching(pattern string, f *os.File, filename string) error {
 		return err
 	}
 	// print the name of the files only if there is a match and the file passed are more that one
-	// TODO: print also if it is a folder
 	if len(mLinesMatch) > 0 {
-		if len(os.Args) > 4 {
+		if len(os.Args) > 4 || isDir {
 			if nocolors {
-				cmd.Printf("> on '%s':\n", filename)
+				cmd.Printf("> '%s':\n", filename)
 			} else {
-				cmd.Printf("> on '%s':\n", out.YellowBoldS(filename))
+				cmd.Printf("> '%s':\n", out.YellowBoldS(filename))
 			}
 		}
 	}
@@ -218,7 +258,11 @@ func printMatchLine(l string, elems [][]int, indexL int) {
 			cmd.Print(l[p:m[0]])
 		}
 		// print the match
-		cmd.Print(out.RedBoldS(l[m[0]:m[1]]))
+		if nocolors {
+			cmd.Print(l[m[0]:m[1]])
+		} else {
+			cmd.Print(out.RedBoldS(l[m[0]:m[1]]))
+		}
 		p = m[1]
 	}
 	// print the end of the sprint (eventually)
