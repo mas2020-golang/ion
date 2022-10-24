@@ -16,53 +16,53 @@ func TestSearch(t *testing.T) {
 		flags    []string
 	}{
 		{
-			"../../test/test-files/search.txt",
+			"../../test-files/search.txt",
 			"Flags",
 			"Flags are:\n",
 			-1,
 			[]string{"--no-colors"},
 		},
 		{
-			"../../test/test-files/search.txt",
+			"../../test-files/search.txt",
 			"<NUMBER>",
 			"--after <NUMBER>: shows also the NUMBER of lines after the match\n--before <NUMBER>: shows also the NUMBER of lines before the match\n",
 			-1,
 			[]string{"--no-colors"},
 		},
 		{
-			"../../test/test-files/search.txt",
+			"../../test-files/search.txt",
 			"<NUMBER>",
 			"2\n",
 			-1,
 			[]string{"--no-colors", "--count-lines"},
 		},
 		{
-			"../../test/test-files/search.txt",
+			"../../test-files/search.txt",
 			"<NUMBER>",
 			"2\n",
 			-1,
 			[]string{"--no-colors", "--count-pattern"},
 		},
 		{
-			"../../test/test-files/search.txt",
+			"../../test-files/search.txt",
 			"<NUMBER1>",
 			"0\n",
 			-1,
 			[]string{"--no-colors", "-r"}, // --only-result
 		},
 		{
-			"../../test/test-files/search.txt",
+			"../../test-files/search.txt",
 			"",
 			"23\n",
 			-1,
 			[]string{"--no-colors", "--count-lines"},
 		},
 		{
-			"../../test/test-files/search.txt",
+			"../../test-files/search.txt",
 			"the",
-			"This is a test for search command.\n\n\nFlags are:\n--words: search only for an entire word matching\n--count-pattern: shows only how many time a pattern is in match\napp1username=app1login\napp1password=S0methingS@Str0ng!\n",
+			"This is a test for search command.\n\nThe matched pattern is highlighted.\n\nFlags are:\n--words: search only for an entire word matching\n--count-pattern: shows only how many time a pattern is in match\napp1username=app1login app\napp1password=S0methingS@Str0ng!\n",
 			-1,
-			[]string{"--no-colors", "-t", "-i"},
+			[]string{"--no-colors", "--invert"},
 		},
 	}
 

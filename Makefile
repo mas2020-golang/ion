@@ -1,6 +1,6 @@
 export GIT_COMMIT=$(shell git rev-list -1 --abbrev-commit HEAD)
 
-testing:
+test:
 	@echo "==> ion test..."
 	@go test github.com/mas2020-golang/ion/cmd/file -coverprofile=coverage.out
 

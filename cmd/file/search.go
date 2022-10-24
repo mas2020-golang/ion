@@ -21,8 +21,7 @@ var (
 	insensitive, onlyResult, onlyFilename, isDir          bool
 	recursive                                             bool
 	cmd                                                   *cobra.Command
-	matchLines, matchPattern, after                       int
-	before, currentLine, fCounter, level                  int
+	before, after, argsN, currentLine, level              int
 	prLines                                               map[int]bool // save the printed lines
 	mLines                                                map[int]string
 	mLinesMatch                                           map[int][][]int
@@ -38,6 +37,7 @@ $ ion search "this" demo-file`,
 		Long: `The command searches for the given pattern. The command can search
 directly from the standard input, one or more files or directories passed an argument. The pattern is highlighted with the red color.`,
 		Run: func(cmd *cobra.Command, args []string) {
+			argsN = len(args)
 			search(args)
 		},
 	}
@@ -137,7 +137,7 @@ func startSearching(pattern string, f *os.File, filename string) error {
 	}
 	// print the name of the files only if there is a match and the file passed are more that one
 	if len(mLinesMatch) > 0 {
-		if len(os.Args) > 4 || isDir {
+		if argsN > 2 || isDir {
 			if nocolors {
 				cmd.Printf("> '%s':\n", filename)
 			} else {
@@ -157,6 +157,7 @@ func startSearching(pattern string, f *os.File, filename string) error {
 func readLines(pattern string, f *os.File) error {
 	mLines = make(map[int]string)
 	mLinesMatch = make(map[int][][]int)
+	currentLine = 0
 
 	r, err := regexp.Compile(pattern)
 	if err != nil {
