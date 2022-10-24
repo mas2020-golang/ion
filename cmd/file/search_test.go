@@ -64,6 +64,18 @@ func TestSearch(t *testing.T) {
 			-1,
 			[]string{"--no-colors", "--invert"},
 		},
+		{
+			"../../test-files",
+			"line",
+			`../../test-files/search.txt
+../../test-files/tail-1.txt
+../../test-files/tail-2.txt
+../../test-files/tail-3.txt
+../../test-files/tail-4.txt
+`,
+			-1,
+			[]string{"--no-colors", "--only-filename"},
+		},
 	}
 
 	//cmd := NewSearchCmd()

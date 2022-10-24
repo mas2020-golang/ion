@@ -137,7 +137,7 @@ func startSearching(pattern string, f *os.File, filename string) error {
 	}
 	// print the name of the files only if there is a match and the file passed are more that one
 	if len(mLinesMatch) > 0 {
-		if argsN > 2 || isDir {
+		if (argsN > 2 || isDir) && !onlyFilename {
 			if nocolors {
 				cmd.Printf("> '%s':\n", filename)
 			} else {
@@ -147,7 +147,7 @@ func startSearching(pattern string, f *os.File, filename string) error {
 	}
 
 	// check the flags and print the result
-	checkFlags()
+	checkFlags(filename)
 	out.TraceLog("search", fmt.Sprintf("matched lines: %v", mLinesMatch))
 	return nil
 }
@@ -190,7 +190,12 @@ func readLines(pattern string, f *os.File) error {
 // checkFlags elaborates the result based on some flags that have special behaviours:
 // --count-lines, --count-pattern, --only-match
 // Returns true in case no more output is needed
-func checkFlags() {
+func checkFlags(filename string) {
+	// check --only-filename
+	if onlyFilename && len(mLinesMatch) > 0 {
+		cmd.Println(filename)
+		return
+	}
 	// check --only-result
 	if onlyResult {
 		if len(mLinesMatch) > 0 {
