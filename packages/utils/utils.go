@@ -2,8 +2,9 @@ package utils
 
 import (
 	"fmt"
-	"golang.org/x/term"
 	"os"
+
+	"golang.org/x/term"
 )
 
 var (
@@ -11,7 +12,7 @@ var (
 )
 
 func init() {
-	Version = "0.2.0-dev"
+	Version = "0.3.0-dev"
 }
 
 // GetBytesFromPipe reads from the pipe and return the buffer of bytes of the given argument
