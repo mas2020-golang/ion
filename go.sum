@@ -6,6 +6,8 @@ github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NH
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/mas2020-golang/goutils v0.7.2 h1:HSou1d0xG1Dle2u6h4BxWFp+Um7IIIlu0dWTnyM3SfA=
 github.com/mas2020-golang/goutils v0.7.2/go.mod h1:5Gd/gPGPAT+NFV1OtcmqbMoLcuzKnYU8m1xOECAPUP0=
+github.com/mas2020-golang/goutils v0.7.3 h1:rbFHd64yqXtXsRQNiYnCyLtMvTiUJB/m/eKUyKrbLAE=
+github.com/mas2020-golang/goutils v0.7.3/go.mod h1:5Gd/gPGPAT+NFV1OtcmqbMoLcuzKnYU8m1xOECAPUP0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
