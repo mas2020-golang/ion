@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	Version, GitCommit string
+	Version, GitCommit, BuildDate string
 )
 
 func init() {
