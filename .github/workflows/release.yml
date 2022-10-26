@@ -6,6 +6,9 @@ on:
     tags:
       - '*'
 
+env:
+  BUILD_DATE: $(date +%Y-%m-%d)
+
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
@@ -35,4 +38,3 @@ jobs:
           args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.ION_TOKEN }}
-          BUILD_DATE: $(date +%Y-%m-%d)
