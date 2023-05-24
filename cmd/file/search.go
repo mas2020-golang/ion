@@ -53,7 +53,7 @@ directly from the standard input, one or more files or directories passed an arg
 	cmd.Flags().IntVarP(&before, "before", "B", 0, "shows also the NUMBER of lines before the match")
 	cmd.Flags().IntVarP(&after, "after", "A", 0, "shows also the NUMBER of lines after the match")
 	cmd.Flags().BoolVarP(&onlyFilename, "only-filename", "f", false, "shows only the filename when a pattern matches one or several times") //TODO: to implement
-	cmd.Flags().BoolVarP(&recursive, "recursive", "d", false, "if the PATH is a folder searches in the sub folders too and not only in its first level")
+	cmd.Flags().BoolVarP(&recursive, "recursive", "d", false, "if true and the PATH is a folder searches in all the sub folders")
 	return cmd
 }
 

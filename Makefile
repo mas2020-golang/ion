@@ -13,7 +13,7 @@ goreleaser:
 	@goreleaser  --rm-dist --snapshot --skip-publish
 	@echo "done!"
 
-install-on-mac: build test
+install_on_mac: build test
 	@echo "start install..."
 	@echo "copying into $(GOPATH)/bin..."
 	@cp bin/ion-darwin-amd64 $(GOPATH)/bin/ion
