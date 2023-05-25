@@ -159,13 +159,14 @@ func readLines(pattern string, f *os.File) error {
 	mLinesMatch = make(map[int][][]int)
 	currentLine = 0
 
-	r, err := regexp.Compile(pattern)
-	if err != nil {
-		return err
-	}
 	// check --insentive flag
 	if insensitive {
 		pattern = "(?i)" + pattern
+	}
+
+	r, err := regexp.Compile(pattern)
+	if err != nil {
+		return err
 	}
 
 	// read the file line by line using scanner

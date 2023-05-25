@@ -28,7 +28,7 @@ $ ion ion wc < test.txt
 # read from the pipe
 $ cat test.txt | ion wc`,
 		Short: "Show the lines or the words of the given input",
-		Long: `The wc command shows the lines or the words of the given input
+		Long: `The count command shows the lines or the words of the given input
 The command can read the standard input, a file, the result of a pipe redirection and
 return the corresponding words or lines`,
 		Run: func(cmd *cobra.Command, args []string) {
