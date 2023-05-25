@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+
 	"github.com/mas2020-golang/ion/packages/utils"
 	"github.com/spf13/cobra"
 )
@@ -18,8 +19,10 @@ func NewVersionCmd() *cobra.Command {
 		Short: "Show the application version",
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
+			//utils.BuildDate = "2022-10-25"
 			fmt.Printf(`%-12s%s
-Git commit: %s`, "Version:", utils.Version, utils.GitCommit)
+Git commit: %s
+%-12s%s`, "Version:", utils.Version, utils.GitCommit, "Built on:", utils.BuildDate)
 			fmt.Println()
 		},
 	}

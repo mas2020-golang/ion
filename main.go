@@ -10,10 +10,11 @@ import (
 )
 
 var (
-	GitCommit string = "N/A"
+	GitCommit, BuildDate string = "N/A", ""
 )
 
 func main() {
 	utils.GitCommit = GitCommit
+	utils.BuildDate = BuildDate
 	cmd.Execute()
 }

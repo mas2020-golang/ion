@@ -2,16 +2,17 @@ package utils
 
 import (
 	"fmt"
-	"golang.org/x/term"
 	"os"
+
+	"golang.org/x/term"
 )
 
 var (
-	Version, GitCommit string
+	Version, GitCommit, BuildDate string
 )
 
 func init() {
-	Version = "0.2.0-dev"
+	Version = "0.3.0-rc.0"
 }
 
 // GetBytesFromPipe reads from the pipe and return the buffer of bytes of the given argument
