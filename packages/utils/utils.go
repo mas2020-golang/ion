@@ -12,7 +12,7 @@ var (
 )
 
 func init() {
-	Version = "0.3.0-rc.0"
+	Version = "0.3.0-rc.1"
 }
 
 // GetBytesFromPipe reads from the pipe and return the buffer of bytes of the given argument
