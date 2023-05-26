@@ -1,5 +1,12 @@
-# ion
+# ion <!-- omit in toc -->
 Ion is a all-in-one application to sum up a lot of useful tools in a single command. The swiss knife for every SysAdmin/DevOps!
+
+## Table of Content <!-- omit in toc -->
+- [Principles](#principles)
+- [Getting started](#getting-started)
+  - [Install via homebrew](#install-via-homebrew)
+- [File commands](#file-commands)
+  - [Search command](#search-command)
 
 ## Principles
 
@@ -26,7 +33,18 @@ Linux/Unix commands.
 You can install `ion` using the installing script for Mac and Linux:
 
 ```shell
-#TODO: continue from here, take note how to download the install.sh and execute...
+curl -sS https://raw.githubusercontent.com/mas2020-golang/ion/main/install.sh | bash
+```
+
+### Install via homebrew
+
+To install with `homebrew` (on MacOS and Linux) first install `homebrew` package manager itself, to do so take a look
+at the [official site](https://brew.sh/).
+
+Then install the application typing:
+```shell
+brew tap mas2020-golang/ion
+brew install ion
 ```
 
 ## File commands
