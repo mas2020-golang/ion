@@ -56,7 +56,7 @@ func init() {
 	// Add the other commands
 	rootCmd.AddCommand(file.NewTailCmd())
 	rootCmd.AddCommand(file.NewTreeCmd())
-	// rootCmd.AddCommand(security.NewCryptoCmd())
+	rootCmd.AddCommand(security.NewDecryptCmd())
 	rootCmd.AddCommand(security.NewEncryptCmd())
 	rootCmd.AddCommand(file.NewCountCmd())
 	rootCmd.AddCommand(file.NewRmCmd())

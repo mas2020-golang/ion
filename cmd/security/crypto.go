@@ -1,6 +1,5 @@
 /*
 Copyright © 2020 @mas2020 andrea.genovesi@gmail.com
-
 */
 package security
 
@@ -11,14 +10,61 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"fmt"
-	"github.com/mas2020-golang/ion/packages/utils"
 	"io"
+	"io/ioutil"
 	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/mas2020-golang/ion/packages/utils"
 )
 
-var (
-	decrypt bool
-)
+// execution is going to encrypt or decrypt
+func cryptographyExec(path, key string, encryption bool) error {
+	fi, err := os.Stat(path)
+	if err != nil {
+		return fmt.Errorf("stat error for the path %s, error: %v", path, err)
+	}
+
+	if fi.IsDir() {
+		fis, err := ioutil.ReadDir(path)
+		if err != nil {
+			return fmt.Errorf("error reading for the path %s, error: %v", path, err)
+		}
+		for _, fi := range fis {
+			if err := cryptographyExec(filepath.Join(path, fi.Name()), key, encryption); err != nil {
+				return err
+			}
+		}
+	} else {
+		if encryption {
+			// take a look at the extension first
+			if strings.HasSuffix(path, ".crypto") {
+				utils.Warning(fmt.Sprintf("the file '%s' is already encrypted, skipped", utils.BoldS(path)))
+				return nil
+			}
+		} else {
+			if !strings.HasSuffix(path, ".crypto") {
+				utils.Warning(fmt.Sprintf("the file '%s' is already decrypted, skipped", utils.BoldS(path)))
+				return nil
+			}
+		}
+
+		whatis := "encrypting"
+		if !encryption {
+			whatis = "decrypting"
+		}
+		fmt.Printf(">> %s the file '%s'...", whatis, utils.BoldS(path))
+		if err := cryptoFile(path, key, encryption); err != nil {
+			fmt.Printf("%s\n", utils.RedS("KO"))
+			return err
+		}
+		fmt.Printf("%s\n", utils.GreenS(" DONE"))
+		removeFile(path)
+	}
+
+	return nil
+}
 
 func removeFile(path string) {
 	if remove {
@@ -219,4 +265,23 @@ func cryptoFile(path, key string, encrypt bool) (err error) {
 func getCypher(key string) (cipher.Block, error) {
 	k := sha256.Sum256([]byte(key))
 	return aes.NewCipher(k[:])
+}
+
+func askForPassword(once bool) (string, error) {
+	key, err := utils.ReadPassword("Password: ")
+	utils.Check(err)
+	fmt.Println("")
+	if !once {
+		key2, err := utils.ReadPassword("Repeat the password:")
+		fmt.Println("")
+		utils.Check(err)
+		if key != key2 {
+			return "", fmt.Errorf("the passwords need to be the same")
+		}
+	}
+
+	if len(key) < 6 {
+		return "", fmt.Errorf("The password is too short, use at least a 6 chars length key")
+	}
+	return key, nil
 }
