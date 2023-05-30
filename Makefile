@@ -1,5 +1,6 @@
 export GIT_COMMIT=$(shell git rev-list -1 --abbrev-commit HEAD)
 export BUILD_DATE=$(shell date +%Y-%m-%d)
+export INSTALL_PATH="/usr/local/bin"
 
 test:
 	@echo "==> ion test..."
@@ -15,8 +16,8 @@ goreleaser:
 
 install_on_mac: build test
 	@echo "start install..."
-	@echo "copying into $(GOPATH)/bin..."
-	@cp bin/ion-darwin-amd64 $(GOPATH)/bin/ion
+	@echo "copying into ${INSTALL_PATH}..."
+	@cp bin/ion-darwin-amd64 ${INSTALL_PATH}/ion
 	@echo "done!"
 
 run:
