@@ -1,5 +1,12 @@
-# ion
+# ion <!-- omit in toc -->
 Ion is a all-in-one application to sum up a lot of useful tools in a single command. The swiss knife for every SysAdmin/DevOps!
+
+## Table of Content <!-- omit in toc -->
+- [Principles](#principles)
+- [Getting started](#getting-started)
+  - [Install via homebrew](#install-via-homebrew)
+- [File commands](#file-commands)
+  - [Search command](#search-command)
 
 ## Principles
 
@@ -26,7 +33,18 @@ Linux/Unix commands.
 You can install `ion` using the installing script for Mac and Linux:
 
 ```shell
-#TODO: continue from here, take note how to download the install.sh and execute...
+curl -sS https://raw.githubusercontent.com/mas2020-golang/ion/main/install.sh | bash
+```
+
+### Install via homebrew
+
+To install with `homebrew` (on MacOS and Linux) first install `homebrew` package manager itself, to do so take a look
+at the [official site](https://brew.sh/).
+
+Then install the application typing:
+```shell
+brew tap mas2020-golang/ion
+brew install ion
 ```
 
 ## File commands
@@ -36,6 +54,7 @@ Follow the list of all the file available commands in the current version of `io
 - `tree`: to show folders and files in a graphical representation
 - `count`: to count words and lines of a specific file/standard input
 - `search`: to search a single pattern into the given file/standard input
+- `rm`: removes the files or folders given as an input
 
 ### Search command
 The command to exec a search in the standard input is search:
@@ -44,9 +63,9 @@ The command to exec a search in the standard input is search:
 ion search [FLAGS] <PATTERN> <PATH> [ …]
 ```
 
-At the moment (v0.3.0) the search command cannot search into a folder, this feature will be implemented soon.
-The command searches for the PATTERN in the PATH (can be one or more paths). The PATTERN is a regular expression.
-The output is done by the lines of the input that contains the pattern. In case the search is run on more files the output is grouped by each file. The matched pattern is highlighted.
+The PATH can be one or more files and folders separated by space.
+The command searches for the PATTERN in the PATH. The PATTERN is a regular expression.
+The search command returns the line in match with the pattern. In case more files are given, the output is grouped by each file. The matched pattern is highlighted.
 
 **Flags** are:
 - --no-colors: no highlight colors in the output
@@ -65,8 +84,8 @@ The output is done by the lines of the input that contains the pattern. In case 
 
 - The flags `--before` and `--after` do not accept negative numbers, in those cases the values are ignored.
 
-- The flags `--words` for the exact correpondence with the patten has not been implemented (as in `grep` for example) because
-you can reach out the same result with the regexp. For example, suppose you are interested in the `app` only and you have this
+- The flags `--words` for the exact correpondence with the patten has not been implemented (as in `grep` for example). You
+can reach out the same result with the regexp. For example, suppose you are interested in the `app` only and you have this
 text:
 
   ```shell
@@ -87,8 +106,8 @@ text:
   ion search ' app| app |app ' test/test-files/search.txt
   ```
 
-- `ion` doesn't accept multiple patterns, having a regex as search engine you can get the same result with the '|' operator. In case this is not possible you have to search more times.
-- when the same pattern is searched on more that one file the file path will be showed onto the standard output in this way:
+- `ion` doesn't accept multiple patterns, having a regex as a search engine you can get the same result with the '|' operator. When this is not possible you have to search multiple times.
+- when the same pattern is searched on more files, the file path will be showed onto the standard output in this way:
 
   ```shell
   $ ion search 'echo' Makefile Makefile-test
@@ -99,7 +118,7 @@ text:
           @echo "==> ion test..."
   ```
 
-- when the **PATH is a folder** ion searches in the first level unless the `--recursive` is given. You can have multiple PATHs as input. The PATH can be a single file or a folder. Example:
+- when the **PATH is a folder** ion searches only into the first level of it, unless the `--recursive` is given. You can have multiple PATHs as input. The PATH can be a single file or a folder. Example:
 
   ```shell
   $ ion search 'line2' /Users/andrea/Downloads/tmp/search --recursive

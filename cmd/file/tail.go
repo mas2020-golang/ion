@@ -27,8 +27,8 @@ $ ion tail -r 10 < test.txt
 $ cat test.txt | ion tail --rows 10`,
 		Short: "Show the n latest rows from the given input",
 		Long: `The tail command shows the n latest rows from the given input.
-The command can read the standard input, a file, the result of a pipe redirection and
-return the corresponding rows.`,
+The command can read the standard input or a given file and returns the corresponding rows.
+If the --rows is not given, the command returns the last 10 rows.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			lines, err := tail(args, rows)
 			utils.Check(err)
@@ -40,8 +40,8 @@ return the corresponding rows.`,
 
 	// flags
 	cmd.Flags().IntVarP(&rows, "rows", "r", rows, "number of rows to show starting from the end of the file")
-	err := cmd.MarkFlagRequired("rows")
-	utils.Check(err)
+	//err := cmd.MarkFlagRequired("rows")
+	//utils.Check(err)
 	return cmd
 }
 
