@@ -52,7 +52,7 @@ directly from the standard input, one or more files or directories passed an arg
 	cmd.Flags().BoolVarP(&onlyResult, "only-result", "r", false, "if there is at least one match it returns 1, otherwise 0")
 	cmd.Flags().IntVarP(&before, "before", "B", 0, "shows also the NUMBER of lines before the match")
 	cmd.Flags().IntVarP(&after, "after", "A", 0, "shows also the NUMBER of lines after the match")
-	cmd.Flags().BoolVarP(&onlyFilename, "only-filename", "f", false, "shows only the filename when a pattern matches one or several times") //TODO: to implement
+	cmd.Flags().BoolVarP(&onlyFilename, "only-filename", "f", false, "shows only the filename if a pattern matches one or several times. If the pattern doesn't match, no output is given.")
 	cmd.Flags().BoolVarP(&recursive, "recursive", "d", false, "if true and the PATH is a folder searches in all the sub folders")
 	return cmd
 }
@@ -135,16 +135,16 @@ func startSearching(pattern string, f *os.File, filename string) error {
 	if err != nil {
 		return err
 	}
-	// print the name of the files only if there is a match and the file passed are more that one
-	if len(mLinesMatch) > 0 {
-		if (argsN > 2 || isDir) && !onlyFilename {
-			if nocolors {
-				cmd.Printf("> '%s':\n", filename)
-			} else {
-				cmd.Printf("> '%s':\n", out.YellowBoldS(filename))
-			}
+	// print the name of the files only if there is a match and the file passed are more than one
+	// if len(mLinesMatch) > 0 {
+	if (argsN > 2 || isDir) && !onlyFilename {
+		if nocolors {
+			cmd.Printf("> '%s':\n", filename)
+		} else {
+			cmd.Printf("> '%s':\n", out.YellowBoldS(filename))
 		}
 	}
+	// }
 
 	// check the flags and print the result
 	checkFlags(filename)
@@ -193,8 +193,10 @@ func readLines(pattern string, f *os.File) error {
 // Returns true in case no more output is needed
 func checkFlags(filename string) {
 	// check --only-filename
-	if onlyFilename && len(mLinesMatch) > 0 {
-		cmd.Println(filename)
+	if onlyFilename {
+		if len(mLinesMatch) > 0 {
+			cmd.Println(filename)
+		}
 		return
 	}
 	// check --only-result
