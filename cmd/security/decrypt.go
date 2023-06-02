@@ -13,15 +13,12 @@ import (
 // NewCryptoCmd represents the crypto command
 func NewDecryptCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "decrypt <PATH>[ PATH]",
+		Use:     "decrypt <PATH>",
 		Args:    cobra.MinimumNArgs(1),
-		Example: ``,
-		Short:   "An easy way to decrypt file and folders",
-		Long: `An easy way to decrypt file and folders using the AES algo with a 256 bits key.
-
-Examples:
-$ ion decrypt /tmp --remove
+		Example: `$ ion decrypt /tmp --remove
 $ ion decrypt /tmp/myfile.txt.crypto`,
+		Short:   "An easy way to decrypt file and folders",
+		Long: `An easy way to decrypt file and folders using the AES algo with a 256 bits key.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			_, err := os.Stat(args[0])
 			utils.Check(err)
