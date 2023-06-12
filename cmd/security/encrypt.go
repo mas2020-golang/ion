@@ -14,18 +14,16 @@ var (
 	remove bool
 )
 
-// NewCryptoCmd represents the crypto command
+// NewEncryptCmd represents the crypto command
 func NewEncryptCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "encrypt ...",
+		Use:     "encrypt <PATH>",
 		Args:    cobra.MinimumNArgs(1),
-		Example: ``,
+		Example: `$ ion encrypt /tmp --remove
+$ ion encrypt /tmp/myfile.txt`,
 		Short:   "An easy way to encrypt file and folders",
 		Long: `An easy way to encrypt file and folders using the AES algo with a 256 bits key.
-
-Examples:
-$ ion encrypt /tmp --remove
-$ ion encrypt /tmp/myfile.txt`,
+`,
 		Run: func(cmd *cobra.Command, args []string) {
 			_, err := os.Stat(args[0])
 			utils.Check(err)
