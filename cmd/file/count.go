@@ -32,7 +32,7 @@ $ cat test.txt | ion count`,
 The command can read the standard input, a file, the result of a pipe redirection and
 return the corresponding words or lines`,
 		Run: func(cmd *cobra.Command, args []string) {
-			c, err := wc(args)
+			c, err := count(args)
 			utils.Check(err)
 			fmt.Println(c)
 		},
@@ -43,11 +43,11 @@ return the corresponding words or lines`,
 	return cmd
 }
 
-func wc(args []string) (count int, err error) {
+func count(args []string) (count int, err error) {
 	var (
 		f *os.File = utils.GetBytesFromPipe()
 	)
-	if f == nil {
+	if f == nil { // no standard input, file name is expected
 		if len(args) == 0 {
 			utils.Check(fmt.Errorf("no file argument"))
 		}
