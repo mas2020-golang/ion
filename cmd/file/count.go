@@ -22,11 +22,11 @@ func NewCountCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "count <file|pipe|standard-input>",
 		Example: `# point the file to read
-$ ion wc test.txt
+$ ion count test.txt
 # read from the standard input
-$ ion ion wc < test.txt 
-# read from the pipe
-$ cat test.txt | ion wc`,
+$ ion ion count < test.txt 
+# read from the pipe redirection
+$ cat test.txt | ion count`,
 		Short: "Show the lines or the words of the given input",
 		Long: `The count command shows the lines or the words of the given input
 The command can read the standard input, a file, the result of a pipe redirection and
