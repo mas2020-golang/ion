@@ -1,6 +1,5 @@
 /*
 Copyright © 2020 @mas2020 andrea.genovesi@gmail.com
-
 */
 package file
 
@@ -9,6 +8,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/mas2020-golang/goutils/output"
 	"github.com/mas2020-golang/ion/packages/utils"
 	"github.com/spf13/cobra"
 )
@@ -33,7 +33,7 @@ The command can read the standard input, a file, the result of a pipe redirectio
 return the corresponding words or lines`,
 		Run: func(cmd *cobra.Command, args []string) {
 			c, err := count(args)
-			utils.Check(err)
+			output.CheckErrorAndExit("", "", err)
 			fmt.Println(c)
 		},
 	}
@@ -49,11 +49,11 @@ func count(args []string) (count int, err error) {
 	)
 	if f == nil { // no standard input, file name is expected
 		if len(args) == 0 {
-			utils.Check(fmt.Errorf("no file argument"))
+			output.CheckErrorAndExit("", "", fmt.Errorf("no file argument"))
 		}
 		// load the file into the buffer
 		f, err = os.Open(args[0])
-		utils.Check(err)
+		output.CheckErrorAndExit("", "", err)
 	}
 	return getCount(f)
 }
@@ -68,7 +68,7 @@ func getCount(f *os.File) (count int, err error) {
 
 	defer func() {
 		err := f.Close()
-		utils.Check(err)
+		output.CheckErrorAndExit("", "", err)
 	}()
 	if err != nil {
 		return -1, fmt.Errorf("error on file stat: '%v'", err)

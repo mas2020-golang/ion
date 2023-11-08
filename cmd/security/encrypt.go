@@ -6,7 +6,7 @@ package security
 import (
 	"os"
 
-	"github.com/mas2020-golang/ion/packages/utils"
+	"github.com/mas2020-golang/goutils/output"
 	"github.com/spf13/cobra"
 )
 
@@ -17,23 +17,23 @@ var (
 // NewEncryptCmd represents the crypto command
 func NewEncryptCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "encrypt <PATH>",
-		Args:    cobra.MinimumNArgs(1),
+		Use:  "encrypt <PATH>",
+		Args: cobra.MinimumNArgs(1),
 		Example: `$ ion encrypt /tmp --remove
 $ ion encrypt /tmp/myfile.txt`,
-		Short:   "An easy way to encrypt file and folders",
+		Short: "An easy way to encrypt file and folders",
 		Long: `An easy way to encrypt file and folders using the AES algo with a 256 bits key.
 `,
 		Run: func(cmd *cobra.Command, args []string) {
 			_, err := os.Stat(args[0])
-			utils.Check(err)
+			output.CheckErrorAndExit("", "", err)
 
 			// ask for password
 			key, err := askForPassword(false)
-			utils.Check(err)
+			output.CheckErrorAndExit("", "", err)
 
 			err = cryptographyExec(args[0], key, true)
-			utils.Check(err)
+			output.CheckErrorAndExit("", "", err)
 		},
 	}
 

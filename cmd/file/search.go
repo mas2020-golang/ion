@@ -34,7 +34,7 @@ func NewSearchCmd() *cobra.Command {
 		Example: `# search this in the demo-file
 $ ion search "this" demo-file`,
 		Short: "Search for the given pattern into the standard input or one or more files",
-		Long: `The command searches for the given pattern. The command can search
+		Long: `The command searches for the given pattern. The command can read
 directly from the standard input, one or more files or directories passed an argument. The pattern is highlighted with the red color.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			argsN = len(args)
