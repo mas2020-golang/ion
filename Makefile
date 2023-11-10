@@ -11,7 +11,7 @@ coverage:
 
 goreleaser:
 	@echo ">> start building..."
-	@goreleaser  --rm-dist --snapshot --skip-publish
+	@goreleaser  --clean --snapshot --skip-publish
 	@echo "done!"
 
 install_on_mac: build test
