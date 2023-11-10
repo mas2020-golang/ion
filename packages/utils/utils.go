@@ -43,11 +43,3 @@ func ReadPassword(text string) (string, error) {
 	buf, err := term.ReadPassword(0)
 	return string(buf), err
 }
-
-// Check checks if an error and exit
-func Check(err error) {
-	if err != nil {
-		fmt.Printf("%s %v\n", RedS("Error:"), err)
-		os.Exit(1)
-	}
-}

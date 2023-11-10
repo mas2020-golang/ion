@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/mas2020-golang/goutils/output"
 	"github.com/mas2020-golang/ion/packages/utils"
 )
 
@@ -40,12 +41,12 @@ func cryptographyExec(path, key string, encryption bool) error {
 		if encryption {
 			// take a look at the extension first
 			if strings.HasSuffix(path, ".crypto") {
-				utils.Warning(fmt.Sprintf("the file '%s' is already encrypted, skipped", utils.BoldS(path)))
+				output.Warn("", fmt.Sprintf("the file '%s' is already encrypted, skipped", output.BoldS(path)))
 				return nil
 			}
 		} else {
 			if !strings.HasSuffix(path, ".crypto") {
-				utils.Warning(fmt.Sprintf("the file '%s' is already decrypted, skipped", utils.BoldS(path)))
+				output.Warn("", fmt.Sprintf("the file '%s' is already decrypted, skipped", output.BoldS(path)))
 				return nil
 			}
 		}
@@ -54,12 +55,12 @@ func cryptographyExec(path, key string, encryption bool) error {
 		if !encryption {
 			whatis = "decrypting"
 		}
-		fmt.Printf(">> %s the file '%s'...", whatis, utils.BoldS(path))
+		fmt.Printf(">> %s the file '%s'...", whatis, output.BoldS(path))
 		if err := cryptoFile(path, key, encryption); err != nil {
-			fmt.Printf("%s\n", utils.RedS("KO"))
+			fmt.Printf("%s\n", output.RedS("KO"))
 			return err
 		}
-		fmt.Printf("%s\n", utils.GreenS(" DONE"))
+		fmt.Printf("%s\n", output.GreenS(" DONE"))
 		removeFile(path)
 	}
 
@@ -68,8 +69,7 @@ func cryptographyExec(path, key string, encryption bool) error {
 
 func removeFile(path string) {
 	if remove {
-		utils.Check(os.Remove(path))
-		//fmt.Printf("%s the file %q has been successfully removed\n", utils.GreenS("Success:"), file)
+		output.CheckErrorAndExit("", "issue during the file deletion", os.Remove(path))
 	}
 }
 
@@ -135,7 +135,7 @@ func cryptoFile(path, key string, encrypt bool) (err error) {
 		return err
 	}
 	defer func(f *os.File) {
-		utils.Check(f.Close())
+		output.CheckErrorAndExit("", "", f.Close())
 	}(inFile)
 
 	// The key is transformed to be 32 bytes long (AES-256)
@@ -189,7 +189,7 @@ func cryptoFile(path, key string, encrypt bool) (err error) {
 	}
 	defer func(f *os.File) {
 		if err := f.Close(); err != nil {
-			utils.Check(f.Close())
+			output.CheckErrorAndExit("", "", f.Close())
 		}
 	}(outFile)
 
@@ -269,12 +269,12 @@ func getCypher(key string) (cipher.Block, error) {
 
 func askForPassword(once bool) (string, error) {
 	key, err := utils.ReadPassword("Password: ")
-	utils.Check(err)
+	output.CheckErrorAndExit("", "", err)
 	fmt.Println("")
 	if !once {
 		key2, err := utils.ReadPassword("Repeat the password:")
 		fmt.Println("")
-		utils.Check(err)
+		output.CheckErrorAndExit("", "", err)
 		if key != key2 {
 			return "", fmt.Errorf("the passwords need to be the same")
 		}
