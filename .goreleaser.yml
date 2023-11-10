@@ -8,6 +8,7 @@ builds:
       - CGO_ENABLED=0
     ldflags:
       - -X main.GitCommit={{.ShortCommit}}
+      - -X main.BuildDate={{ .Env.BUILD_DATE }}
     goos:
       - linux
       - windows
@@ -41,5 +42,7 @@ brews:
       owner: mas2020-golang
       name: homebrew-ion
     folder: Formula
-    homepage: https://github.com/mas2020-golang/homebrew-ion
-    description: The ion formula
+    homepage: https://github.com/mas2020-golang/ion
+    description: |
+      Ion is a all-in-one application to sum up a lot of useful tools in a single command.
+      The swiss knife for every SysAdmin/DevOps!

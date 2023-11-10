@@ -14,62 +14,62 @@ func TestTail(t *testing.T) {
 		expected int
 	}{
 		{
-			"../../test/tail-1.txt",
+			"../../test-files/tail-1.txt",
 			3,
 			3,
 		},
 		{
-			"../../test/tail-2.txt",
+			"../../test-files/tail-2.txt",
 			1,
 			1,
 		},
 		{
-			"../../test/tail-2.txt",
+			"../../test-files/tail-2.txt",
 			10,
 			3,
 		},
 		{
-			"../../test/tail-2.txt",
+			"../../test-files/tail-2.txt",
 			0,
 			0,
 		},
 		{
-			"../../test/tail-3.txt",
+			"../../test-files/tail-3.txt",
 			4,
 			4,
 		},
 		{
-			"../../test/tail-4.txt",
+			"../../test-files/tail-4.txt",
 			3,
 			2,
 		},
 		{
-			"../../test/tail-4.txt",
+			"../../test-files/tail-4.txt",
 			1,
 			1,
 		},
 		{
-			"../../test/tail-4.txt",
+			"../../test-files/tail-4.txt",
 			2,
 			2,
 		},
 		{
-			"../../test/tail-6.txt",
+			"../../test-files/tail-6.txt",
 			4,
 			0,
 		},
 		{
-			"../../test/tail-7.txt",
+			"../../test-files/tail-7.txt",
 			2,
 			2,
 		},
 		{
-			"../../test/tail-7.txt",
+			"../../test-files/tail-7.txt",
 			1,
 			1,
 		},
 		{
-			"../../test/tail-7.txt",
+			"../../test-files/tail-7.txt",
 			5,
 			3,
 		},

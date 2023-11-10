@@ -1,17 +1,17 @@
 /*
 Copyright © 2020 @mas2020 andrea.genovesi@gmail.com
-
 */
 package file
 
 import (
 	"fmt"
-	"github.com/mas2020-golang/ion/packages/utils"
-	"github.com/spf13/cobra"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/mas2020-golang/goutils/output"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -20,7 +20,6 @@ var (
 )
 
 // NewTreeCmd represents the tree command
-// TODO: colorize the folders
 func NewTreeCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "tree <FOLDER>",
@@ -35,7 +34,7 @@ and the files as a hierarchy.`,
 				if i > 0 {
 					carriage = "\n"
 				}
-				fmt.Printf("%s%s\n", carriage, utils.BoldS(arg))
+				fmt.Printf("%s%s\n", carriage, output.BoldS(arg))
 				err := tree(arg, 0, "")
 				if err != nil {
 					fmt.Println(err)
@@ -79,7 +78,7 @@ func tree(path string, level int, symbol string) error {
 		if level != 0 {
 			dirs++
 			if colorize {
-				fmt.Printf("%s\n", utils.BlueS(fi.Name()))
+				fmt.Printf("%s\n", output.BlueS(fi.Name()))
 			} else {
 				fmt.Printf("%s\n", fi.Name())
 			}
