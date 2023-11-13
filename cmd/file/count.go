@@ -1,6 +1,5 @@
 /*
 Copyright © 2020 @mas2020 andrea.genovesi@gmail.com
-
 */
 package file
 
@@ -9,6 +8,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/mas2020-golang/goutils/output"
 	"github.com/mas2020-golang/ion/packages/utils"
 	"github.com/spf13/cobra"
 )
@@ -22,18 +22,18 @@ func NewCountCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "count <file|pipe|standard-input>",
 		Example: `# point the file to read
-$ ion wc test.txt
+$ ion count test.txt
 # read from the standard input
-$ ion ion wc < test.txt 
-# read from the pipe
-$ cat test.txt | ion wc`,
+$ ion ion count < test.txt 
+# read from the pipe redirection
+$ cat test.txt | ion count`,
 		Short: "Show the lines or the words of the given input",
-		Long: `The wc command shows the lines or the words of the given input
+		Long: `The count command shows the lines or the words of the given input
 The command can read the standard input, a file, the result of a pipe redirection and
 return the corresponding words or lines`,
 		Run: func(cmd *cobra.Command, args []string) {
-			c, err := wc(args)
-			utils.Check(err)
+			c, err := count(args)
+			output.CheckErrorAndExit("", "", err)
 			fmt.Println(c)
 		},
 	}
@@ -43,17 +43,17 @@ return the corresponding words or lines`,
 	return cmd
 }
 
-func wc(args []string) (count int, err error) {
+func count(args []string) (count int, err error) {
 	var (
 		f *os.File = utils.GetBytesFromPipe()
 	)
-	if f == nil {
+	if f == nil { // no standard input, file name is expected
 		if len(args) == 0 {
-			utils.Check(fmt.Errorf("no file argument"))
+			output.CheckErrorAndExit("", "", fmt.Errorf("no file argument"))
 		}
 		// load the file into the buffer
 		f, err = os.Open(args[0])
-		utils.Check(err)
+		output.CheckErrorAndExit("", "", err)
 	}
 	return getCount(f)
 }
@@ -68,7 +68,7 @@ func getCount(f *os.File) (count int, err error) {
 
 	defer func() {
 		err := f.Close()
-		utils.Check(err)
+		output.CheckErrorAndExit("", "", err)
 	}()
 	if err != nil {
 		return -1, fmt.Errorf("error on file stat: '%v'", err)

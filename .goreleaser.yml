@@ -8,6 +8,7 @@ builds:
       - CGO_ENABLED=0
     ldflags:
       - -X main.GitCommit={{.ShortCommit}}
+      - -X main.BuildDate={{ .Env.BUILD_DATE }}
     goos:
       - linux
       - windows
@@ -18,13 +19,13 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
-    name_template: '{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}'
-    replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
+    name_template: >-
+      {{- .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end -}}
 checksum:
   name_template: 'checksums.txt'
 snapshot:
@@ -37,11 +38,12 @@ changelog:
       - '^docs:'
       - '^test:'
 brews:
-  - tap:
+  - 
+    repository:
       owner: mas2020-golang
       name: homebrew-ion
     folder: Formula
     homepage: https://github.com/mas2020-golang/ion
     description: |
-    Ion is a all-in-one application to sum up a lot of useful tools in a single command.
-    The swiss knife for every SysAdmin/DevOps!
+      Ion is a all-in-one application to sum up a lot of useful tools in a single command.
+      The swiss knife for every SysAdmin/DevOps!

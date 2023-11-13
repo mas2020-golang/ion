@@ -1,6 +1,5 @@
 /*
 Copyright © 2020 @mas2020 andrea.genovesi@gmail.com
-
 */
 package security
 
@@ -11,85 +10,18 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"fmt"
-	"github.com/mas2020-golang/ion/packages/utils"
-	"github.com/spf13/cobra"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/mas2020-golang/goutils/output"
+	"github.com/mas2020-golang/ion/packages/utils"
 )
 
-var (
-	rows            int = 10
-	remove, decrypt bool
-)
-
-// NewCryptoCmd represents the crypto command
-func NewCryptoCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "crypto ...",
-		Args:    cobra.MinimumNArgs(1),
-		Example: ``,
-		Short:   "An easy way to encrypt and decrypt file and folders",
-		Long: `An easy way to encrypt and decrypt file and folders using the AES algo with a 256 bits key.
-
-Examples:
-$ ion crypto /tmp --remove
-$ ion crypto /tmp --remove --decrypt`,
-		Run: func(cmd *cobra.Command, args []string) {
-			crypto(args)
-		},
-	}
-
-	// flags
-	cmd.Flags().BoolVarP(&remove, "remove", "r", false, "remove the original file")
-	cmd.Flags().BoolVarP(&decrypt, "decrypt", "d", false, "for decrypting the content, otherwise it will encrypt")
-
-	// help
-	//cmd.SetHelpFunc(func(command *cobra.Command, strings []string) {
-	//	fmt.Fprintf(cmd.OutOrStdout(), "my custom help")
-	//})
-	return cmd
-}
-
-func removeFile(path string) {
-	if remove {
-		utils.Check(os.Remove(path))
-		//fmt.Printf("%s the file %q has been successfully removed\n", utils.GreenS("Success:"), file)
-	}
-}
-
-// crypto is the starting point of the command
-func crypto(args []string) {
-	// check the arg to see if encrypt/decrypt a file or a folder
-	_, err := os.Stat(args[0])
-	utils.Check(err)
-
-	// ask for password
-	key, err := utils.ReadPassword("Password: ")
-	utils.Check(err)
-	fmt.Println("")
-	if !decrypt {
-		key2, err := utils.ReadPassword("Repeat the password:")
-		fmt.Println("")
-		utils.Check(err)
-		if key != key2 {
-			utils.Error("the passwords need to be the same")
-			return
-		}
-	}
-	if len(key) < 6 {
-		utils.Warning("The password is too short, use at least a 6 chars length key")
-		return
-	}
-
-	err = execute(args[0], key)
-	utils.Check(err)
-}
-
-// cryptoFolder takes care to encrypt or decrypt the folder and all the nested content
-func execute(path, key string) error {
+// execution is going to encrypt or decrypt
+func cryptographyExec(path, key string, encryption bool) error {
 	fi, err := os.Stat(path)
 	if err != nil {
 		return fmt.Errorf("stat error for the path %s, error: %v", path, err)
@@ -101,37 +33,90 @@ func execute(path, key string) error {
 			return fmt.Errorf("error reading for the path %s, error: %v", path, err)
 		}
 		for _, fi := range fis {
-			if err := execute(filepath.Join(path, fi.Name()), key); err != nil {
+			if err := cryptographyExec(filepath.Join(path, fi.Name()), key, encryption); err != nil {
 				return err
 			}
 		}
 	} else {
-		// case is a file to encrypt or decrypt, take a look at the extension
-		if decrypt && !strings.HasSuffix(path, ".crypto") {
-			utils.Warning(fmt.Sprintf("the file '%s' is already decrypted, skipped", utils.BoldS(path)))
-			return nil
-		}
-		if !decrypt && strings.HasSuffix(path, ".crypto") {
-			utils.Warning(fmt.Sprintf("the file '%s' is already encrypted, skipped", utils.BoldS(path)))
-			return nil
+		if encryption {
+			// take a look at the extension first
+			if strings.HasSuffix(path, ".crypto") {
+				output.Warn("", fmt.Sprintf("the file '%s' is already encrypted, skipped", output.BoldS(path)))
+				return nil
+			}
+		} else {
+			if !strings.HasSuffix(path, ".crypto") {
+				output.Warn("", fmt.Sprintf("the file '%s' is already decrypted, skipped", output.BoldS(path)))
+				return nil
+			}
 		}
 
-		// encrypt/decrypt the file
-		if !decrypt {
-			fmt.Printf("Encrypting the file '%s'...", utils.BoldS(path))
-		} else {
-			fmt.Printf("Decrypting the file '%s'...", utils.BoldS(path))
+		whatis := "encrypting"
+		if !encryption {
+			whatis = "decrypting"
 		}
-		if err := cryptoFile(path, key, !decrypt); err != nil {
-			fmt.Printf("%s\n", utils.RedS("KO"))
+		fmt.Printf(">> %s the file '%s'...", whatis, output.BoldS(path))
+		if err := cryptoFile(path, key, encryption); err != nil {
+			fmt.Printf("%s\n", output.RedS("KO"))
 			return err
 		}
-		fmt.Printf("%s\n", utils.GreenS("DONE"))
+		fmt.Printf("%s\n", output.GreenS(" DONE"))
 		removeFile(path)
 	}
 
 	return nil
 }
+
+func removeFile(path string) {
+	if remove {
+		output.CheckErrorAndExit("", "issue during the file deletion", os.Remove(path))
+	}
+}
+
+// // cryptoFolder takes care to encrypt or decrypt the folder and all the nested content
+// func execute(path, key string) error {
+// 	fi, err := os.Stat(path)
+// 	if err != nil {
+// 		return fmt.Errorf("stat error for the path %s, error: %v", path, err)
+// 	}
+
+// 	if fi.IsDir() {
+// 		fis, err := ioutil.ReadDir(path)
+// 		if err != nil {
+// 			return fmt.Errorf("error reading for the path %s, error: %v", path, err)
+// 		}
+// 		for _, fi := range fis {
+// 			if err := execute(filepath.Join(path, fi.Name()), key); err != nil {
+// 				return err
+// 			}
+// 		}
+// 	} else {
+// 		// case is a file to encrypt or decrypt, take a look at the extension
+// 		if decrypt && !strings.HasSuffix(path, ".crypto") {
+// 			utils.Warning(fmt.Sprintf("the file '%s' is already decrypted, skipped", utils.BoldS(path)))
+// 			return nil
+// 		}
+// 		if !decrypt && strings.HasSuffix(path, ".crypto") {
+// 			utils.Warning(fmt.Sprintf("the file '%s' is already encrypted, skipped", utils.BoldS(path)))
+// 			return nil
+// 		}
+
+// 		// encrypt/decrypt the file
+// 		if !decrypt {
+// 			fmt.Printf("Encrypting the file '%s'...", utils.BoldS(path))
+// 		} else {
+// 			fmt.Printf("Decrypting the file '%s'...", utils.BoldS(path))
+// 		}
+// 		if err := cryptoFile(path, key, !decrypt); err != nil {
+// 			fmt.Printf("%s\n", utils.RedS("KO"))
+// 			return err
+// 		}
+// 		fmt.Printf("%s\n", utils.GreenS("DONE"))
+// 		removeFile(path)
+// 	}
+
+// 	return nil
+// }
 
 // cryptoFile is the function to encrypt or decrypt a file. When encrypt the file
 // the checksum of the original file is created and appended to the end of the file, after the iv
@@ -150,7 +135,7 @@ func cryptoFile(path, key string, encrypt bool) (err error) {
 		return err
 	}
 	defer func(f *os.File) {
-		utils.Check(f.Close())
+		output.CheckErrorAndExit("", "", f.Close())
 	}(inFile)
 
 	// The key is transformed to be 32 bytes long (AES-256)
@@ -204,7 +189,7 @@ func cryptoFile(path, key string, encrypt bool) (err error) {
 	}
 	defer func(f *os.File) {
 		if err := f.Close(); err != nil {
-			utils.Check(f.Close())
+			output.CheckErrorAndExit("", "", f.Close())
 		}
 	}(outFile)
 
@@ -280,4 +265,23 @@ func cryptoFile(path, key string, encrypt bool) (err error) {
 func getCypher(key string) (cipher.Block, error) {
 	k := sha256.Sum256([]byte(key))
 	return aes.NewCipher(k[:])
+}
+
+func askForPassword(once bool) (string, error) {
+	key, err := utils.ReadPassword("Password: ")
+	output.CheckErrorAndExit("", "", err)
+	fmt.Println("")
+	if !once {
+		key2, err := utils.ReadPassword("Repeat the password:")
+		fmt.Println("")
+		output.CheckErrorAndExit("", "", err)
+		if key != key2 {
+			return "", fmt.Errorf("the passwords need to be the same")
+		}
+	}
+
+	if len(key) < 6 {
+		return "", fmt.Errorf("The password is too short, use at least a 6 chars length key")
+	}
+	return key, nil
 }

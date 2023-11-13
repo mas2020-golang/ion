@@ -1,15 +1,16 @@
 /*
 Copyright © 2020 @mas2020 andrea.genovesi@gmail.com
-
 */
 package file
 
 import (
 	"fmt"
-	"github.com/mas2020-golang/ion/packages/utils"
-	"github.com/spf13/cobra"
 	"io/ioutil"
 	"os"
+
+	"github.com/mas2020-golang/goutils/output"
+	"github.com/mas2020-golang/ion/packages/utils"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -21,17 +22,19 @@ func NewTailCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "tail <file|pipe|standard-input>",
 		Example: `$ ion tail --rows 10 test.txt
+
 // read from the standard input
 $ ion tail -r 10 < test.txt
+
 // read from the pipe
 $ cat test.txt | ion tail --rows 10`,
 		Short: "Show the n latest rows from the given input",
 		Long: `The tail command shows the n latest rows from the given input.
-The command can read the standard input, a file, the result of a pipe redirection and
-return the corresponding rows.`,
+The command can read the standard input or a given file and returns the corresponding rows.
+If the --rows is not given, the command returns the last 10 rows.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			lines, err := tail(args, rows)
-			utils.Check(err)
+			output.CheckErrorAndExit("", "", err)
 			for _, l := range lines {
 				fmt.Print(l)
 			}
@@ -40,8 +43,8 @@ return the corresponding rows.`,
 
 	// flags
 	cmd.Flags().IntVarP(&rows, "rows", "r", rows, "number of rows to show starting from the end of the file")
-	err := cmd.MarkFlagRequired("rows")
-	utils.Check(err)
+	//err := cmd.MarkFlagRequired("rows")
+	//utils.Check(err)
 	return cmd
 }
 
@@ -51,11 +54,11 @@ func tail(args []string, r int) (lines []string, err error) {
 	)
 	if f == nil {
 		if len(args) == 0 {
-			utils.Check(fmt.Errorf("no file argument"))
+			output.CheckErrorAndExit("", "", fmt.Errorf("no file argument"))
 		}
 		// load the file into the buffer
 		f, err = os.Open(args[0])
-		utils.Check(err)
+		output.CheckErrorAndExit("", "", err)
 	}
 	return getLines(f, r)
 }
@@ -70,12 +73,12 @@ func getLines(f *os.File, n int) (lines []string, err error) {
 
 	defer func() {
 		err := f.Close()
-		utils.Check(err)
+		output.CheckErrorAndExit("", "", err)
 	}()
 
 	buf, err := ioutil.ReadAll(f)
 	//fmt.Printf("file content (bytes): %v\n", buf)
-	utils.Check(err)
+	output.CheckErrorAndExit("", "", err)
 	pos = len(buf) - 1
 
 	for i < n && pos >= 0 {

@@ -2,16 +2,17 @@ package utils
 
 import (
 	"fmt"
-	"golang.org/x/term"
 	"os"
+
+	"golang.org/x/term"
 )
 
 var (
-	Version, GitCommit string
+	Version, GitCommit, BuildDate string
 )
 
 func init() {
-	Version = "0.2.0-dev"
+	Version = "0.4.0-dev"
 }
 
 // GetBytesFromPipe reads from the pipe and return the buffer of bytes of the given argument
@@ -41,12 +42,4 @@ func ReadPassword(text string) (string, error) {
 	fmt.Print(text)
 	buf, err := term.ReadPassword(0)
 	return string(buf), err
-}
-
-// Check checks if an error and exit
-func Check(err error) {
-	if err != nil {
-		fmt.Printf("%s %v\n", RedS("Error:"), err)
-		os.Exit(1)
-	}
 }
