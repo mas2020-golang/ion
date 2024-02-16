@@ -14,8 +14,9 @@ goreleaser:
 	@goreleaser  --clean --snapshot --skip-publish
 	@echo "done!"
 
-install_on_mac: build test
+install_on_mac: test
 	@echo ">> start install..."
+	GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.GitCommit=${GIT_COMMIT} -X main.BuildDate=${BUILD_DATE}" -o bin/ion-darwin-amd64 main.go
 	@echo ">> copying into ${INSTALL_PATH}..."
 	@cp bin/ion-darwin-amd64 ${INSTALL_PATH}/ion
 	@echo "done!"
