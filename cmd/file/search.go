@@ -10,13 +10,10 @@ import (
 
 var (
 	nocolors, countLines, countPattern, onlyMatch, invert bool
-	insensitive, onlyResult, onlyFilename, isDir          bool
+	insensitive, onlyResult, onlyFilename                 bool
 	recursive                                             bool
 	cmd                                                   *cobra.Command
-	before, after, argsN, currentLine, level              int
-	prLines                                               map[int]bool // save the printed lines
-	mLines                                                map[int]string
-	mLinesMatch                                           map[int][][]int
+	before, after                                         int
 )
 
 func NewSearchCmd() *cobra.Command {
@@ -29,7 +26,7 @@ $ ion search "this" demo-file`,
 		Long: `The command searches for the given pattern. The command can read
 directly from the standard input, one or more files or directories passed an argument. The pattern is highlighted with the red color.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			argsN = len(args)
+			// argsN = len(args)
 			output := cmd.OutOrStdout()
 			searcher := file.NewSearcher(countLines, countPattern, onlyMatch, nocolors, invert, insensitive, onlyResult,
 				onlyFilename, recursive, before, after, output)
