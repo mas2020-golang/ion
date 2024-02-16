@@ -1,6 +1,5 @@
 /*
 Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
@@ -26,14 +25,11 @@ standard input/output and a lot of other daily basis activities.
 
 Some examples:
 // to search some content into a file
-$ ion search --regexp '(temp)' --color test.txt
+$ ion search --no-colors "this" demo-file
 
 // tail the last 10 rows
 $ ion tail --rows 10 test.txt
 `,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
