@@ -57,6 +57,7 @@ func init() {
 	rootCmd.AddCommand(file.NewCountCmd())
 	rootCmd.AddCommand(file.NewRmCmd())
 	rootCmd.AddCommand(file.NewSearchCmd())
+	rootCmd.AddCommand(file.NewSliceCmd())
 }
 
 // setLogs load the configuration for the logging system
