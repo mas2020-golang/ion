@@ -52,9 +52,11 @@ You can specify the intervals as already seen.
 		by byte position, chars or fields.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			slice := file.NewSlice()
-			s, err := slice.Slice(args[0], sliceBytes, sliceChars, sliceCols)
+			values, err := slice.Slice(args[0], sliceBytes, sliceChars, sliceCols)
 			out.CheckErrorAndExit("", "", err)
-			fmt.Println(s)
+			for _, v := range values {
+				fmt.Println(v)
+			}
 		},
 	}
 

@@ -15,26 +15,30 @@ func TestSlice(t *testing.T) {
 		sliceBytes string
 		sliceChars string
 		sliceCols  string
-		expected   string
+		expected   []string
 	}{
+		//TODO: add more use cases to the application
 		{
-			"../../test-files/tail-1.txt",
-			"2",
+			"../../test-files/slice.txt",
+			"2", // --bytes testing
 			"",
 			"",
-			"t",
+			[]string{"", "-", " ", "E"},
 		},
 	}
 	for _, c := range cases {
 		slice := file.NewSlice()
-		s, err := slice.Slice(c.file, c.sliceBytes, c.sliceChars, c.sliceCols)
+		values, err := slice.Slice(c.file, c.sliceBytes, c.sliceChars, c.sliceCols)
 		if err != nil {
 			t.Errorf("error: %v", err)
 		}
-		if s != c.expected {
-			t.Errorf("with %q, got %s, expected %s",
-				c.file, s, c.expected)
+		for i, v := range values {
+			if v != c.expected[i] {
+				t.Errorf("with %q, got %q, expected %q",
+					c.file, v, c.expected[i])
+			}
 		}
+
 	}
 
 }

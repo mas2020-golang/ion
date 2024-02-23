@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mas2020-golang/goutils/output"
 	"golang.org/x/term"
 )
 
@@ -42,4 +43,24 @@ func ReadPassword(text string) (string, error) {
 	fmt.Print(text)
 	buf, err := term.ReadPassword(0)
 	return string(buf), err
+}
+
+// getReader loads the *os.File from the pipe or from arg file
+func GetReader(arg string) (f *os.File, err error) {
+	if len(os.Getenv("ION_DEBUG")) == 0 {
+		f = GetBytesFromPipe()
+	}
+	if f == nil { // means that there is no pipe value
+		if len(arg) == 0 {
+			return nil, fmt.Errorf("no file argument")
+		}
+		// load the file into the buffer
+		f, err = os.Open(arg)
+
+		if err != nil {
+			return nil, err
+		}
+		output.Trace("GetReader", fmt.Sprintf("file %s, opened", arg))
+	}
+	return
 }
