@@ -36,10 +36,10 @@ You can specify start: to start from that point to the end of the input line or 
 In case you need separated char you can use comma, for example: 1,2,6 gives you the corresponding bytes as string.
 If the single byte is not an ascii char, specify the colon to get the right char (usually for UTF8 econded files).
 
--- extract the chars from the start to end expressed as start:end:
+-- extract the chars from start to end expressed as start:end:
 $ ion slice -c 1:3 test.txt
 
-You can specify a single char or a chunk of chars or the beginning char till the end as: -c 10:.
+You can specify a single char either a chunk of chars or the beginning char till the end as: -c 10:.
 
 -- extract by columns using a delimiter expressed by the -d option:
 $ ion slice -f 3 -d " "

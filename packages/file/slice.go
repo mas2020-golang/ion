@@ -2,11 +2,12 @@ package file
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
+	"github.com/mas2020-golang/goutils/output"
 	"github.com/mas2020-golang/ion/packages/utils"
 )
 
@@ -25,7 +26,7 @@ func (t *Slice) Slice(arg string, sliceBytes string, sliceChars string, sliceCol
 	}
 	defer f.Close()
 
-	// TODO: 1. read the file line by line; 2. invoke the right func; 3. return the value or the error
+	// sliceBytes takes the precedence over sliceChars and sliceCols
 	sliceInterval := sliceBytes
 	op := "bytes"
 	if len(sliceInterval) == 0 {
@@ -38,7 +39,7 @@ func (t *Slice) Slice(arg string, sliceBytes string, sliceChars string, sliceCol
 	}
 	start, end, err := getIntervals(sliceInterval)
 	if err != nil {
-		return nil, fmt.Errorf("error getting intervals: %s", err)
+		return nil, err
 	}
 
 	// read the input line by line
@@ -60,7 +61,6 @@ func (t *Slice) Slice(arg string, sliceBytes string, sliceChars string, sliceCol
 		return nil, fmt.Errorf("error during the scan of the file: %s", err)
 	}
 
-	// sliceBytes takes the precedence on sliceChars and sliceCols
 	return sliceVal, nil
 }
 
@@ -68,16 +68,28 @@ func (t *Slice) Slice(arg string, sliceBytes string, sliceChars string, sliceCol
 func getIntervals(arg string) (int, int, error) {
 	// any :?
 	if strings.Contains(arg, ":") {
+		// edge case, only : is given
+		if arg == ":" {
+			return -1, -1, utils.ErrMalformed
+		}
 		elems := strings.Split(arg, ":")
+		output.Trace("file.getIntervals()", fmt.Sprintf("elems: %#v", elems))
 		// 2 elems?
 		if len(elems) != 2 {
-			return -1, -1, errors.New("passing the colon you have to specify an interval, e.g. 3:5")
+			return -1, -1, utils.ErrMalformed
 		}
 		start, err := strconv.Atoi(strings.Trim(elems[0], " "))
 		if err != nil {
 			return start, -1, err
 		}
-		end, err := strconv.Atoi(strings.Trim(elems[1], " "))
+		end := 0
+		// check if end is empty value (end is empty in case of giving 1:)
+		if len(strings.Trim(elems[1], " ")) == 0 {
+			end = math.MaxInt32 // due to this in the getSliceBytes func will be set end = len(s)
+		} else {
+			end, err = strconv.Atoi(strings.Trim(elems[1], " "))
+		}
+
 		if err != nil {
 			return start, end, err
 		}
@@ -86,6 +98,9 @@ func getIntervals(arg string) (int, int, error) {
 		return start, end, nil
 	} else {
 		start, err := strconv.Atoi(strings.Trim(arg, " "))
+		if err != nil {
+			return -1, -1, utils.ErrMalformed
+		}
 		return start, start, err
 	}
 }
