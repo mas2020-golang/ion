@@ -60,7 +60,7 @@ func GetReader(arg string) (f *os.File, err error) {
 		if err != nil {
 			return nil, err
 		}
-		output.Trace("GetReader", fmt.Sprintf("file %s, opened", arg))
+		output.TraceLog("GetReader", fmt.Sprintf("file %s, opened", arg))
 	}
 	return
 }

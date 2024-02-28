@@ -37,7 +37,7 @@ func (t *Slice) Slice(arg string, sliceBytes string, sliceChars string, sliceCol
 		sliceInterval = sliceCols
 		op = "cols"
 	}
-	start, end, err := getIntervals(sliceInterval)
+	start, end, err := t.getIntervals(sliceInterval)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (t *Slice) Slice(arg string, sliceBytes string, sliceChars string, sliceCol
 		// determine the operation to execute
 		switch op {
 		case "bytes":
-			sliceVal = append(sliceVal, getSliceBytes(s, start, end))
+			sliceVal = append(sliceVal, t.getSliceBytes(s, start, end))
 		case "chars":
 			fmt.Println("not implemented yet")
 		case "cols":
@@ -65,7 +65,7 @@ func (t *Slice) Slice(arg string, sliceBytes string, sliceChars string, sliceCol
 }
 
 // getIntervals accepts the arg to check for returning start and end
-func getIntervals(arg string) (int, int, error) {
+func (t *Slice) getIntervals(arg string) (int, int, error) {
 	// any :?
 	if strings.Contains(arg, ":") {
 		// edge case, only : is given
@@ -105,7 +105,7 @@ func getIntervals(arg string) (int, int, error) {
 	}
 }
 
-func getSliceBytes(s string, start, end int) string {
+func (t *Slice) getSliceBytes(s string, start, end int) string {
 	start--
 	if start < 0 || start > len(s) || end < 0 || start > end {
 		return ""
@@ -116,4 +116,21 @@ func getSliceBytes(s string, start, end int) string {
 	}
 
 	return s[start:end]
+}
+
+// Returns the slices (it stops at the first invalid index)
+func (t *Slice) getSlices(s string, d string, fields []uint8) []string {
+	response := make([]string, 0)
+	slices := strings.Split(s, d)
+
+	for _, f := range fields {
+		f--
+		if f < 0 || int(f) >= len(slices) {
+			return response
+		}
+		if int(f) < len(slices) {
+			response = append(response, slices[f])
+		}
+	}
+	return response
 }

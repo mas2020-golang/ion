@@ -25,7 +25,7 @@ func TestSlice(t *testing.T) {
 			"2", // --bytes testing
 			"",
 			"",
-			[]string{"", "-", " ", "E"},
+			[]string{"", "-", " ", "E", "\xb8"},
 			nil,
 		},
 		{
@@ -33,7 +33,7 @@ func TestSlice(t *testing.T) {
 			"1:4", // --bytes testing
 			"",
 			"",
-			[]string{"", "--3", "A B ", "TEST"},
+			[]string{"", "--3", "A B ", "TEST", "世\xe7"},
 			nil,
 		},
 		{
@@ -41,7 +41,7 @@ func TestSlice(t *testing.T) {
 			"1:-4", // --bytes testing
 			"",
 			"",
-			[]string{"", "", "", ""},
+			[]string{"", "", "", "", ""},
 			nil,
 		},
 		{
@@ -49,7 +49,7 @@ func TestSlice(t *testing.T) {
 			"-1:", // --bytes testing
 			"",
 			"",
-			[]string{"", "", "", ""},
+			[]string{"", "", "", "", ""},
 			nil,
 		},
 		{
@@ -57,7 +57,7 @@ func TestSlice(t *testing.T) {
 			"1:", // --bytes testing
 			"",
 			"",
-			[]string{"", "--3", "A B C", "TEST"},
+			[]string{"", "--3", "A B C", "TEST", "世界 field3"},
 			nil,
 		},
 		{
@@ -65,7 +65,7 @@ func TestSlice(t *testing.T) {
 			":", // --bytes testing
 			"",
 			"",
-			[]string{"", "--3", "A B C", "TEST"},
+			[]string{"", "--3", "A B C", "TEST", ""},
 			utils.ErrMalformed,
 		},
 		{
@@ -73,7 +73,7 @@ func TestSlice(t *testing.T) {
 			"",
 			"",
 			"",
-			[]string{"", "--3", "A B C", "TEST"},
+			[]string{"", "--3", "A B C", "TEST", ""},
 			utils.ErrMalformed,
 		},
 		{
@@ -81,7 +81,7 @@ func TestSlice(t *testing.T) {
 			"-1", // --bytes testing
 			"",
 			"",
-			[]string{"", "", "", ""},
+			[]string{"", "", "", "", ""},
 			nil,
 		},
 	}
@@ -95,8 +95,8 @@ func TestSlice(t *testing.T) {
 
 		for i, v := range values {
 			if v != c.expected[i] {
-				t.Errorf("with %q, got %q, expected %q",
-					c.file, v, c.expected[i])
+				t.Errorf("with [-b %q, -c %q, -f %q], got %q, expected %q",
+					c.sliceBytes, c.sliceChars, c.sliceCols, v, c.expected[i])
 			}
 		}
 
