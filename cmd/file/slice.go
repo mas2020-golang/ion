@@ -34,7 +34,7 @@ $ ion slice -b 1:3 test.txt
 
 You can specify start: to start from that point to the end of the input line or simply start to get a single char.
 In case you need separated char you can use comma, for example: 1,2,6 gives you the corresponding bytes as string.
-If the single byte is not an ascii char, specify the colon to get the right char (usually for UTF8 econded files).
+If the single byte is not an ascii char, specify the colon to get the right char (usually for UTF8 encoded files).
 
 -- extract the chars from start to end expressed as start:end:
 $ ion slice -c 1:3 test.txt
@@ -46,6 +46,8 @@ $ ion slice -f 3 -d " "
 
 In the example above we are cutting by space.
 You can specify the intervals as already seen.
+
+IMPORTANT NOTES: in case of an interval, end cannot be less than start.
 `,
 		Short: "Slice the provided input",
 		Long: `The slice command slices a line and extracts the text. The input can be cut

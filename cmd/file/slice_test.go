@@ -42,7 +42,7 @@ func TestSlice(t *testing.T) {
 			"",
 			"",
 			[]string{"", "", "", "", ""},
-			nil,
+			utils.ErrMalformed,
 		},
 		{
 			"../../test-files/slice.txt",
@@ -50,7 +50,7 @@ func TestSlice(t *testing.T) {
 			"",
 			"",
 			[]string{"", "", "", "", ""},
-			nil,
+			utils.ErrMalformed,
 		},
 		{
 			"../../test-files/slice.txt",
@@ -82,8 +82,40 @@ func TestSlice(t *testing.T) {
 			"",
 			"",
 			[]string{"", "", "", "", ""},
-			nil,
+			utils.ErrMalformed,
 		},
+		{
+			"../../test-files/slice.txt",
+			"-1", // --bytes testing
+			"2", // bytes has the precedence
+			"",
+			[]string{"", "", "", "", ""},
+			utils.ErrMalformed,
+		},
+		// {
+		// 	"../../test-files/slice.txt",
+		// 	"",
+		// 	"2", // chars
+		// 	"",
+		// 	[]string{"", "-", " ", "E", "界"},
+		// 	nil,
+		// },
+		// {
+		// 	"../../test-files/slice.txt",
+		// 	"",
+		// 	"1:3", // chars
+		// 	"",
+		// 	[]string{"", "--3", "A B", "TES", "世界 "},
+		// 	nil,
+		// },
+		// {
+		// 	"../../test-files/slice.txt",
+		// 	"",
+		// 	"1:-3", // chars
+		// 	"",
+		// 	[]string{"", "", "", "", ""},
+		// 	utils.ErrMalformed,
+		// },
 	}
 	for _, c := range cases {
 		slice := file.NewSlice()
@@ -95,7 +127,7 @@ func TestSlice(t *testing.T) {
 
 		for i, v := range values {
 			if v != c.expected[i] {
-				t.Errorf("with [-b %q, -c %q, -f %q], got %q, expected %q",
+				t.Errorf("with [-b %q, -c %q, -f %q], got '%s', expected '%s'",
 					c.sliceBytes, c.sliceChars, c.sliceCols, v, c.expected[i])
 			}
 		}
