@@ -65,7 +65,6 @@ func (t *Slice) Slice(arg string, sliceBytes string, sliceChars string, sliceCol
 	return sliceVal, nil
 }
 
-// TODO: comma values are missing, e.g. 1,3,5
 // getIntervals accepts the arg to check for returning start and end
 func (t *Slice) getIntervals(arg string) ([]int, int, error) {
 	// trimming first
@@ -103,7 +102,7 @@ func (t *Slice) getIntervals(arg string) ([]int, int, error) {
 		// no errors
 		return []int{start}, end, nil
 	} else if strings.Contains(arg, ",") {
-		// splitting by comma, we have multiple starts with the same end
+		// splitting by comma, we have multiple starts with the same end each one
 		starts := []int{}
 		elems := strings.Split(arg, ",")
 		output.TraceLog("file.getIntervals", fmt.Sprintf("elems: %#v", elems))
@@ -117,6 +116,7 @@ func (t *Slice) getIntervals(arg string) ([]int, int, error) {
 		}
 		return starts, -1, nil
 	} else {
+		// single start point
 		start, err := strconv.Atoi(arg)
 		if err != nil || start < 0 {
 			return nil, -1, utils.ErrMalformed
@@ -128,6 +128,9 @@ func (t *Slice) getIntervals(arg string) ([]int, int, error) {
 // Returns the slices for the --bytes (e.g. -b 1,2,3)
 func (t *Slice) getBytes(s string, startSl []int, end int) string {
 	output.TraceLog("file.getBytes", fmt.Sprintf("s: %q, startSl: %#v, end: %d", s, startSl, end))
+	if len(s) == 0 {
+		return ""
+	}
 	result := ""
 	// to check if change the end value or not, in case we have multiple starts means we have the comma as separator
 	// and the end val has to be equals to start
@@ -136,15 +139,15 @@ func (t *Slice) getBytes(s string, startSl []int, end int) string {
 	for _, start := range startSl {
 		if multipleStartVals {
 			end = start
-		} else {
-			// edge cases: line is empty, start > len(s)
-			if len(s) == 0 || start > len(s) {
-				return ""
-			}
-			if end > len(s) {
-				end = len(s)
-			}
 		}
+		// edge cases: start > len(s)
+		if start > len(s) {
+			continue
+		}
+		if end > len(s) {
+			end = len(s)
+		}
+
 		start--
 		result += s[start:end]
 		output.TraceLog("file.getBytes", fmt.Sprintf("computed start: %d, end: %d, result: %q", start, end, result))
@@ -169,21 +172,33 @@ func (t *Slice) getFields(s string, d string, fields []uint8) []string {
 	return response
 }
 
+// TODO: adjust this code to consider the commas also
 // Returns the slices for the --chars
 func (t *Slice) getChars(s string, startSl []int, end int) string {
+	if len(s) == 0 {
+		return ""
+	}
+	// to check if change the end value or not, in case we have multiple starts means we have the comma as separator
+	// and the end val has to be equals to start
+	multipleStartVals := len(startSl) > 1
 	result := ""
 	// runes creation
 	runes := make([]int32, 0, len(s))
 	for _, c := range s {
 		runes = append(runes, c)
 	}
+	// cycle the start points
 	for _, start := range startSl {
+		if start > len(s) {
+			continue
+		}
+		if multipleStartVals {
+			end = start
+		}
+
 		start--
 		if end > len(runes) {
 			end = len(runes)
-		}
-		if start < 0 {
-			start = 0
 		}
 
 		for start < end {

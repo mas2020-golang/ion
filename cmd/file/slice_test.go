@@ -11,127 +11,76 @@ import (
 Test function for the slice command.
 */
 func TestSlice(t *testing.T) {
-	cases := []struct {
-		file       string
-		sliceBytes string
-		sliceChars string
-		sliceCols  string
-		expected   []string
-		err        error
+	casesNew := []struct {
+		file     string
+		input    [][]string
+		expected [][]string
+		err      []error
 	}{
-		//TODO: add more use cases to the application
 		{
+			// --bytes testing
 			"../../test-files/slice.txt",
-			"2", // --bytes testing
-			"",
-			"",
-			[]string{"", "-", " ", "E", "\xb8"},
-			nil,
+			[][]string{
+				{"2", "", ""},
+				{"1:4", "", ""},
+				{"1:-4", "", ""},
+				{"-1", "", ""},
+				{"1:", "", ""},
+				{":", "", ""},
+				{"", "", ""},
+				{"-1", "2", ""},
+				{"18,2", "", ""}},
+			[][]string{
+				{"", "-", " ", "E", "\xb8"},
+				{"", "--3", "A B ", "TEST", "世\xe7"},
+				{"", "", "", "", ""},
+				{"", "", "", "", ""},
+				{"", "--3", "A B C", "TEST", "世界 field3"},
+				{"", "--3", "A B C", "TEST", ""},
+				{"", "--3", "A B C", "TEST", ""},
+				{"", "", "", "", ""},
+				{"", "-", " ", "E", "\xb8"}},
+			[]error{nil, nil, utils.ErrMalformed, utils.ErrMalformed, nil, utils.ErrMalformed, utils.ErrMalformed, utils.ErrMalformed, nil},
 		},
 		{
+			// --chars testing
 			"../../test-files/slice.txt",
-			"1:4", // --bytes testing
-			"",
-			"",
-			[]string{"", "--3", "A B ", "TEST", "世\xe7"},
-			nil,
+			[][]string{
+				{"", "2", ""},
+				{"", "1:3", ""},
+				{"", "1:-3", ""},
+				{"", "100", ""},
+				{"", "1:", ""},
+				{"", "18,2", ""},
+			},
+			[][]string{
+				{"", "-", " ", "E", "界"},
+				{"", "--3", "A B", "TES", "世界 "},
+				{"", "", "", "", ""},
+				{"", "", "", "", ""},
+				{"", "--3", "A B C", "TEST", "世界 field3"},
+				{"", "-", " ", "E", "界"},
+			},
+			[]error{nil, nil, utils.ErrMalformed, nil, nil, nil},
 		},
-		{
-			"../../test-files/slice.txt",
-			"1:-4", // --bytes testing
-			"",
-			"",
-			[]string{"", "", "", "", ""},
-			utils.ErrMalformed,
-		},
-		{
-			"../../test-files/slice.txt",
-			"-1:", // --bytes testing
-			"",
-			"",
-			[]string{"", "", "", "", ""},
-			utils.ErrMalformed,
-		},
-		{
-			"../../test-files/slice.txt",
-			"1:", // --bytes testing
-			"",
-			"",
-			[]string{"", "--3", "A B C", "TEST", "世界 field3"},
-			nil,
-		},
-		{
-			"../../test-files/slice.txt",
-			":", // --bytes testing
-			"",
-			"",
-			[]string{"", "--3", "A B C", "TEST", ""},
-			utils.ErrMalformed,
-		},
-		{
-			"../../test-files/slice.txt",
-			"",
-			"",
-			"",
-			[]string{"", "--3", "A B C", "TEST", ""},
-			utils.ErrMalformed,
-		},
-		{
-			"../../test-files/slice.txt",
-			"-1", // --bytes testing
-			"",
-			"",
-			[]string{"", "", "", "", ""},
-			utils.ErrMalformed,
-		},
-		{
-			"../../test-files/slice.txt",
-			"-1", // --bytes testing
-			"2", // bytes has the precedence
-			"",
-			[]string{"", "", "", "", ""},
-			utils.ErrMalformed,
-		},
-		// {
-		// 	"../../test-files/slice.txt",
-		// 	"",
-		// 	"2", // chars
-		// 	"",
-		// 	[]string{"", "-", " ", "E", "界"},
-		// 	nil,
-		// },
-		// {
-		// 	"../../test-files/slice.txt",
-		// 	"",
-		// 	"1:3", // chars
-		// 	"",
-		// 	[]string{"", "--3", "A B", "TES", "世界 "},
-		// 	nil,
-		// },
-		// {
-		// 	"../../test-files/slice.txt",
-		// 	"",
-		// 	"1:-3", // chars
-		// 	"",
-		// 	[]string{"", "", "", "", ""},
-		// 	utils.ErrMalformed,
-		// },
 	}
-	for _, c := range cases {
-		slice := file.NewSlice()
-		values, err := slice.Slice(c.file, c.sliceBytes, c.sliceChars, c.sliceCols)
-		if err != c.err {
-			t.Errorf("with %q, got >>%v<<, expected >>%v<<",
-				c.file, err, c.err)
-		}
 
-		for i, v := range values {
-			if v != c.expected[i] {
-				t.Errorf("with [-b %q, -c %q, -f %q], got '%s', expected '%s'",
-					c.sliceBytes, c.sliceChars, c.sliceCols, v, c.expected[i])
+	// test cases execution
+	for _, c := range casesNew {
+		slice := file.NewSlice()
+		for i := 0; i < len(c.input); i++ {
+			values, err := slice.Slice(c.file, c.input[i][0], c.input[i][1], c.input[i][2])
+			if err != c.err[i] {
+				t.Errorf("with %q, got >>%v<<, expected >>%v<<",
+					c.file, err, c.err[i])
+			}
+
+			for i2, v := range values {
+				if v != c.expected[i][i2] {
+					t.Errorf("with [-b %q, -c %q, -f %q], got '%s', expected '%s'",
+						c.input[i][0], c.input[i][1], c.input[i][2], v, c.expected[i][i2])
+				}
 			}
 		}
-
 	}
-
 }
