@@ -13,14 +13,14 @@ import (
 
 var (
 	sliceBytes, sliceChars, sliceCols string
-	delimiter                         = ""
+	delimiter                         = " "
 )
 
 // NewTailCmd represents the tail command
 func NewSliceCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Args: cobra.MinimumNArgs(1),
-		Use:  "slice [flags] <file|pipe|standard-input>",
+		//Args: cobra.MinimumNArgs(1),
+		Use: "slice [flags] <file|pipe|standard-input>",
 		Example: `$ ion slice -b 1:3 test.txt
 
 -- read from the standard input
@@ -33,7 +33,7 @@ $ cat test.txt | ion slice -b 1:3
 $ ion slice -b 1:3 test.txt
 
 You can specify start: to start from that point to the end of the input line or simply start to get a single char.
-In case you need separated char you can use comma, for example: 1,2,6 gives you the corresponding bytes as string.
+In case you need separated chars you can use comma, for example: 1,2,6 gives you the corresponding bytes as string.
 If the single byte is not an ascii char, specify the colon to get the right char (usually for UTF8 encoded files).
 
 -- extract the chars from start to end expressed as start:end:
@@ -51,10 +51,10 @@ IMPORTANT NOTES: in case of an interval, end cannot be less than start.
 `,
 		Short: "Slice the provided input",
 		Long: `The slice command slices a line and extracts the text. The input can be cut
-		by byte position, chars or fields.`,
+by the position of the bytes either chars or fields.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			slice := file.NewSlice()
-			values, err := slice.Slice(args[0], sliceBytes, sliceChars, sliceCols)
+			values, err := slice.Slice(args, sliceBytes, sliceChars, sliceCols, delimiter)
 			out.CheckErrorAndExit("", "", err)
 			for _, v := range values {
 				fmt.Println(v)

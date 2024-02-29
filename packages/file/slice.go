@@ -18,9 +18,9 @@ func NewSlice() *Slice {
 	return &Slice{}
 }
 
-func (t *Slice) Slice(arg string, sliceBytes string, sliceChars string, sliceCols string) (sliceVal []string, err error) {
+func (t *Slice) Slice(args []string, sliceBytes string, sliceChars string, sliceCols string, delim string) (sliceVal []string, err error) {
 	// reads the arg input file
-	f, err := utils.GetReader(arg)
+	f, err := utils.GetReader(args)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,11 @@ func (t *Slice) Slice(arg string, sliceBytes string, sliceChars string, sliceCol
 		case "chars":
 			sliceVal = append(sliceVal, t.getChars(s, startSl, end))
 		case "fields":
-			fmt.Println("not implemented yet")
+			val, err := t.getFields(s, delim, startSl, end)
+			if err != nil {
+				return nil, err
+			}
+			sliceVal = append(sliceVal, val)
 		}
 	}
 	err = scanner.Err()
@@ -156,23 +160,57 @@ func (t *Slice) getBytes(s string, startSl []int, end int) string {
 }
 
 // Returns the slices for the --fields
-func (t *Slice) getFields(s string, d string, fields []uint8) []string {
-	response := make([]string, 0)
-	slices := strings.Split(s, d)
+func (t *Slice) getFields(s string, d string, startSl []int, end int) (string, error) {
+	// pre checks
+	if len(s) == 0 {
+		return "", nil
+	}
 
-	for _, f := range fields {
-		f--
-		if f < 0 || int(f) >= len(slices) {
-			return response
-		}
-		if int(f) < len(slices) {
-			response = append(response, slices[f])
+	if len(d) > 1 {
+		// trimming from delimiter
+		d = strings.Trim(d, " ")
+		if len(d) > 1 {
+			return "", utils.ErrSepMalformed
 		}
 	}
-	return response
+	output.TraceLog("file.getFields", fmt.Sprintf("computed delimiter: %q", d))
+
+	// to check if change the end value or not, in case we have multiple starts means we have the comma as separator
+	// and the end val has to be equals to start
+	multipleStartVals := len(startSl) > 1
+	result := ""
+	slices := strings.Split(s, d)
+
+	// cycle the start points
+	for _, start := range startSl {
+		if start > len(slices) {
+			continue
+		}
+		if multipleStartVals {
+			end = start
+		}
+		start--
+		if end > len(slices) {
+			end = len(slices)
+		}
+
+		for start < end {
+			// if delimiter only the slices[start] == ""
+			if slices[start] != "" {
+				if len(result) > 0 {
+					result += d + slices[start]
+				} else {
+					result += slices[start]
+				}
+
+			}
+			start++
+		}
+	}
+
+	return result, nil
 }
 
-// TODO: adjust this code to consider the commas also
 // Returns the slices for the --chars
 func (t *Slice) getChars(s string, startSl []int, end int) string {
 	if len(s) == 0 {
