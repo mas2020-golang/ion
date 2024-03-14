@@ -17,17 +17,18 @@ func NewTail() *Tail {
 }
 
 func (t *Tail) Tail(args []string, r int) (lines []string, err error) {
-	var (
-		f *os.File = utils.GetBytesFromPipe()
-	)
-	if f == nil {
+	var f *os.File = utils.GetBytesFromPipe()
+	if f == nil { // means that there is no pipe value
 		if len(args) == 0 {
 			return nil, fmt.Errorf("no file argument")
 		}
 		// load the file into the buffer
 		f, err = os.Open(args[0])
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
 	}
+
 	return t.getLines(f, r)
 }
 
@@ -41,7 +42,9 @@ func (t *Tail) getLines(f *os.File, n int) (lines []string, err error) {
 
 	defer func() {
 		err := f.Close()
-		output.Error("Tail.getLines()", err.Error())
+		if err != nil {
+			output.Error("Tail.getLines()", err.Error())
+		}
 	}()
 
 	buf, err := ioutil.ReadAll(f)
