@@ -31,7 +31,7 @@ $ ion decrypt /tmp/myfile.txt.crypto`,
 			output.CheckErrorAndExit("", "", err)
 		},
 	}
-
+	cmd.GroupID = "sec"
 	// flags
 	cmd.Flags().BoolVarP(&remove, "remove", "r", false, "remove the .crypto file")
 	return cmd

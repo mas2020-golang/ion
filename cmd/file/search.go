@@ -22,9 +22,9 @@ func NewSearchCmd() *cobra.Command {
 		Use:  "search <PATTERN> <PATH> [...PATH]",
 		Example: `# search this in the demo-file
 $ ion search "this" demo-file`,
-		Short: "Search for the given pattern into the standard input or one or more files",
+		Short: "Search for a specific pattern into the provided input",
 		Long: `The command searches for the given pattern. The command can read
-directly from the standard input, one or more files or directories passed an argument. The pattern is highlighted with the red color.`,
+directly from the standard input, files or directories passed as an argument. The pattern is highlighted with the red color.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			// argsN = len(args)
 			output := cmd.OutOrStdout()
@@ -33,6 +33,7 @@ directly from the standard input, one or more files or directories passed an arg
 			searcher.Search(args)
 		},
 	}
+	cmd.GroupID = "file"
 	// cmd.SetOut(os.Stdout)
 	// flags
 	cmd.Flags().BoolVarP(&countLines, "count-lines", "l", false, "shows only how many lines match with the pattern")
