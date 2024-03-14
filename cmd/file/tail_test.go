@@ -2,6 +2,8 @@ package file
 
 import (
 	"testing"
+
+	"github.com/mas2020-golang/ion/packages/file"
 )
 
 /*
@@ -76,7 +78,8 @@ func TestTail(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		l, err := tail([]string{c.file}, c.rows)
+		tail := file.NewTail()
+		l, err := tail.Tail([]string{c.file}, c.rows)
 		if err != nil {
 			t.Errorf("error: %v", err)
 		}
