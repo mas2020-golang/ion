@@ -48,6 +48,7 @@ and the files as a hierarchy.`,
 			cmd.OutOrStdout()
 		},
 	}
+	cmd.GroupID = "file"
 
 	// flags
 	cmd.Flags().IntVarP(&levels, "levels", "l", levels, "number of levels for the hierarchy")

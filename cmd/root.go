@@ -17,18 +17,11 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "ion",
+	Use:   "ion [flags] [command]",
 	Short: "Ion is your swiss knife for having with you a lot of useful commands",
 	Long: `Ion is an all-in-one application to sum up a lot of useful tools in a single command.
 The swiss knife for every SysAdmin/DevOps!. You can use the ion commands as you do with pipes,
 standard input/output and a lot of other daily basis activities.
-
-Some examples:
-// to search some content into a file
-$ ion search --no-colors "this" demo-file
-
-// tail the last 10 rows
-$ ion tail --rows 10 test.txt
 `,
 }
 
@@ -48,6 +41,12 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	// set groups
+	gFile := &cobra.Group{ID: "file", Title: "Common file commands"}
+	rootCmd.AddGroup(gFile)
+	gSec := &cobra.Group{ID: "sec", Title: "Security commands"}
+	rootCmd.AddGroup(gSec)
 
 	// Add the other commands
 	rootCmd.AddCommand(file.NewTailCmd())

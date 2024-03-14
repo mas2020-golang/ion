@@ -66,6 +66,7 @@ by the position of the bytes either chars or fields.`,
 			}
 		},
 	}
+	cmd.GroupID = "file"
 
 	// flags
 	cmd.Flags().StringVarP(&sliceBytes, "bytes", "b", sliceBytes, "interval of bytes to slice (start:end)")
