@@ -41,13 +41,18 @@ $ ion slice -c 1:3 test.txt
 
 You can specify a single char either a chunk of chars or the beginning char till the end as: -c 10:.
 
--- extract by columns using a delimiter expressed by the -d option:
+-- extract by columns using a 'delimiter' expressed by the -d option:
 $ ion slice -f 3 -d " "
+A-B
+In the example above we are cutting by space. 
 
-In the example above we are cutting by space.
+If there are multiple fields as output, they will be splitted by the delimiter, e.g.:
+$ echo "A-B-B" | ion slice -f 1,2 -d '-'
+A-B
+
 You can specify the intervals as already seen.
 
-IMPORTANT NOTES: in case of an interval, end cannot be less than start.
+IMPORTANT NOTES: in case of an interval, end cannot be lower than start.
 `,
 		Short: "Slice the provided input",
 		Long: `The slice command slices a line and extracts the text. The input can be cut
