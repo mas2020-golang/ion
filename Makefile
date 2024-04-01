@@ -1,5 +1,6 @@
 export GIT_COMMIT=$(shell git rev-list -1 --abbrev-commit HEAD)
 export BUILD_DATE=$(shell date +%Y-%m-%d)
+export GO_VERSION=$(shell go version | cut -f 3 -d " ")
 export INSTALL_PATH="/usr/local/bin"
 
 test:
@@ -16,7 +17,8 @@ goreleaser:
 
 install_on_mac: test
 	@echo ">> start install..."
-	GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.GitCommit=${GIT_COMMIT} -X main.BuildDate=${BUILD_DATE}" -o bin/ion-darwin-amd64 main.go
+	GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.GitCommit=${GIT_COMMIT} -X main.BuildDate=${BUILD_DATE} -X main.GoVersion=${GO_VERSION}" \
+	-o bin/ion-darwin-amd64 main.go
 	@echo ">> copying into ${INSTALL_PATH}..."
 	@cp bin/ion-darwin-amd64 ${INSTALL_PATH}/ion
 	@echo "done!"

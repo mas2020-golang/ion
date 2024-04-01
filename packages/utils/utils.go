@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	Version, GitCommit, BuildDate string
+	Version, GitCommit, BuildDate, GoVersion string
 )
 
 func init() {

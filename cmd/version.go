@@ -19,10 +19,14 @@ func NewVersionCmd() *cobra.Command {
 		Short: "Show the application version",
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
-			//utils.BuildDate = "2022-10-25"
 			fmt.Printf(`%-12s%s
-Git commit: %s
-%-12s%s`, "Version:", utils.Version, utils.GitCommit, "Built on:", utils.BuildDate)
+%-12s%s
+%-12s%s
+%-12s%s`, 
+"Version:",utils.Version, 
+"Git commit:", utils.GitCommit, 
+"Built on: ", utils.BuildDate, 
+"Go version:", utils.GoVersion)
 			fmt.Println()
 		},
 	}
