@@ -36,7 +36,7 @@ $ ion encrypt /tmp/myfile.txt`,
 			output.CheckErrorAndExit("", "", err)
 		},
 	}
-
+	cmd.GroupID = "sec"
 	// flags
 	cmd.Flags().BoolVarP(&remove, "remove", "r", false, "remove the original file")
 

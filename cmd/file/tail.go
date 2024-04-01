@@ -40,6 +40,8 @@ If the --rows is not given, the command returns the last 10 rows.`,
 		},
 	}
 
+	cmd.GroupID = "file"
+
 	// flags
 	cmd.Flags().IntVarP(&rows, "rows", "r", rows, "number of rows to show starting from the end of the file")
 	//err := cmd.MarkFlagRequired("rows")
