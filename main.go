@@ -10,11 +10,12 @@ import (
 )
 
 var (
-	GitCommit, BuildDate string = "N/A", ""
+	GitCommit, BuildDate, GoVersion string = "N/A", "", "go1.21.1"
 )
 
 func main() {
 	utils.GitCommit = GitCommit
 	utils.BuildDate = BuildDate
+	utils.GoVersion = GoVersion
 	cmd.Execute()
 }
