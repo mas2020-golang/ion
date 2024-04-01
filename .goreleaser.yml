@@ -9,6 +9,7 @@ builds:
     ldflags:
       - -X main.GitCommit={{.ShortCommit}}
       - -X main.BuildDate={{ .Env.BUILD_DATE }}
+      - -X main.GoVersion={{ .Env.GO_VERSION }}
     goos:
       - linux
       - windows
