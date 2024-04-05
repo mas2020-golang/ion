@@ -108,7 +108,7 @@ getPackage() {
   http_code=$(curl -sSL $url -w '%{http_code}\n' --output "$targetFile")
 
   # check the file not found
-  if [ ${http_code} -eq 404 ] || [ "$?" != "0" ]; then
+  if [ "$?" != "0" ] || [ ${http_code} -eq 404 ] ; then
     printf "\n${ERROR} no file as a target download has been found"
     exit 1
   fi
