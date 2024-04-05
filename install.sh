@@ -4,7 +4,7 @@
 # Repo specific content #
 #########################
 
-export ALIAS_NAME="ion"
+# export ALIAS_NAME="ion"
 export OWNER=mas2020-golang
 export REPO=ion
 export BINLOCATION="/usr/local/bin"
@@ -95,7 +95,7 @@ getPackage() {
   printf "\n✔︎ the file to download is '%q'" "${downloadFile}"
 
   if [ "$userid" != "0" ]; then
-    targetFile="$(pwd)/$REPO$suffix"
+    targetFile="$(pwd)/$REPO_$version_$suffix.tar.gz"
   fi
 
   if [ -e "$targetFile" ]; then
@@ -113,60 +113,62 @@ getPackage() {
     exit 1
   fi
 
-  if [ "$?" = "0" ]; then
-    chmod +x "$targetFile"
-    printf "\n${DONE} download complete"
+  chmod +x "$targetFile"
+  printf "\n${DONE} download complete"
 
-    if [ ! -w "$BINLOCATION" ]; then
+  tar -xvf $targetFile
+
+  # is the location writable?
+  if [ ! -w "$BINLOCATION" ]; then
+    echo
+    echo "============================================================"
+    echo "  The script was run as a user who is unable to write"
+    echo "  to $BINLOCATION. To complete the installation the"
+    echo "  following commands may need to be run manually."
+    echo "============================================================"
+    echo
+    echo "$ sudo cp ion $BINLOCATION/$REPO"
+
+    if [ -n "$ALIAS_NAME" ]; then
+      echo "$ sudo ln -sf $BINLOCATION/$REPO $BINLOCATION/$ALIAS_NAME"
+    fi
+  else
+    printf "${SUB_ACT} %s ${STOP_COLOR}" "moving $REPO to $BINLOCATION..."
+
+    if [ ! -w "$BINLOCATION/$REPO" ] && [ -f "$BINLOCATION/$REPO" ]; then
       echo
-      echo "============================================================"
-      echo "  The script was run as a user who is unable to write"
-      echo "  to $BINLOCATION. To complete the installation the"
-      echo "  following commands may need to be run manually."
-      echo "============================================================"
+      echo "================================================================"
+      echo "  $BINLOCATION/$REPO already exists and is not writeable"
+      echo "  by the current user.  Please adjust the binary ownership"
+      echo "  or run sh/bash with sudo."
+      echo "================================================================"
       echo
-      echo "$ sudo cp $REPO$suffix $BINLOCATION/$REPO"
+      exit 1
+    fi
+    mv "$targetFile" $BINLOCATION/$REPO
 
-      if [ -n "$ALIAS_NAME" ]; then
-        echo "$ sudo ln -sf $BINLOCATION/$REPO $BINLOCATION/$ALIAS_NAME"
-      fi
-    else
-      printf "${SUB_ACT} %s ${STOP_COLOR}" "moving $REPO to $BINLOCATION..."
+    if [ "$?" = "0" ]; then
+      printf "\n${DONE} new version of $REPO installed to $BINLOCATION"
+    fi
 
-      if [ ! -w "$BINLOCATION/$REPO" ] && [ -f "$BINLOCATION/$REPO" ]; then
-        echo
-        echo "================================================================"
-        echo "  $BINLOCATION/$REPO already exists and is not writeable"
-        echo "  by the current user.  Please adjust the binary ownership"
-        echo "  or run sh/bash with sudo."
-        echo "================================================================"
-        echo
-        exit 1
-      fi
-      mv "$targetFile" $BINLOCATION/$REPO
+    if [ -e "$targetFile" ]; then
+      rm "$targetFile"
+    fi
 
-      if [ "$?" = "0" ]; then
-        printf "\n${DONE} new version of $REPO installed to $BINLOCATION"
-      fi
-
-      if [ -e "$targetFile" ]; then
-        rm "$targetFile"
-      fi
-
-      if [ -n "$ALIAS_NAME" ]; then
-        if [ $(which $ALIAS_NAME) ]; then
-          printf "\n${WARNING} there is already a command '$ALIAS_NAME' in the path, NOT creating alias"
-        else
-          if [ ! -L $BINLOCATION/$ALIAS_NAME ]; then
-            ln -s $BINLOCATION/$REPO $BINLOCATION/$ALIAS_NAME
-            printf "\n${WARNING} created alias '$ALIAS_NAME' for '$REPO'"
-          fi
+    if [ -n "$ALIAS_NAME" ]; then
+      if [ $(which $ALIAS_NAME) ]; then
+        printf "\n${WARNING} there is already a command '$ALIAS_NAME' in the path, NOT creating alias"
+      else
+        if [ ! -L $BINLOCATION/$ALIAS_NAME ]; then
+          ln -s $BINLOCATION/$REPO $BINLOCATION/$ALIAS_NAME
+          printf "\n${WARNING} created alias '$ALIAS_NAME' for '$REPO'"
         fi
       fi
-      printf "${SUB_ACT} checking application...\n"
-      ${SUCCESS_CMD}
     fi
+    printf "${SUB_ACT} checking application...\n"
+    ${SUCCESS_CMD}
   fi
+
 }
 
 hasCli
