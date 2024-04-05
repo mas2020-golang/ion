@@ -24,11 +24,11 @@ export WARNING="\e[38;5;216mWARNING\e[0m:"
 # Content common across repos #
 ###############################
 #set -x
-printf "${ACTIVITY}%s ${STOP_COLOR}" "installation for the $REPO application..."
+printf "${ACTIVITY}%s${STOP_COLOR}" "installing the $REPO application..."
 version=$(curl -sI https://github.com/$OWNER/$REPO/releases/latest | grep -i "location:" | awk -F"/" '{ printf "%s", $NF }' | tr -d '\r')
 #set -x
-version=${version:1}
-printf "\nselected version for %s is '%q'" $REPO $version
+#version=${version:1}
+printf "\n✔︎ selected version for %s is '%q'" $REPO $version
 if [ ! $version ]; then
   echo "Failed while attempting to install $REPO. Please manually install:"
   echo ""
@@ -90,10 +90,9 @@ getPackage() {
     esac
     ;;
   esac
-  #cryptex_0.1.0-rc.1_Linux-x86_64.tar.gz
   targetFile="/tmp/$REPO_$version_$suffix.tar.gz"
-  downloadFile="${REPO}_${version}_${suffix}.tar.gz"
-  printf "\nthe file to download is '%q'" "${downloadFile}"
+  downloadFile="${REPO}_${suffix}.tar.gz"
+  printf "\n✔︎ the file to download is '%q'" "${downloadFile}"
 
   if [ "$userid" != "0" ]; then
     targetFile="$(pwd)/$REPO$suffix"
@@ -126,10 +125,10 @@ getPackage() {
       echo "  following commands may need to be run manually."
       echo "============================================================"
       echo
-      echo "  sudo cp $REPO$suffix $BINLOCATION/$REPO"
+      echo "$ sudo cp $REPO$suffix $BINLOCATION/$REPO"
 
       if [ -n "$ALIAS_NAME" ]; then
-        echo "  sudo ln -sf $BINLOCATION/$REPO $BINLOCATION/$ALIAS_NAME"
+        echo "$ sudo ln -sf $BINLOCATION/$REPO $BINLOCATION/$ALIAS_NAME"
       fi
     else
       printf "${SUB_ACT} %s ${STOP_COLOR}" "moving $REPO to $BINLOCATION..."
