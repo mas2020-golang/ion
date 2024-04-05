@@ -68,9 +68,15 @@ getPackage() {
     ;;
 
   "MINGW"*)
-    suffix=".exe"
-    BINLOCATION="$HOME/bin"
-    mkdir -p $BINLOCATION
+    echo
+    echo "================================================================================================"
+    echo "  The script doesn't provide an automatic Windows installation."
+    echo "  Pls connect to the official release page (https://github.com/mas2020-golang/ion/releases)"
+    echo "  and download the version compatible with you Windows operating system."
+    echo "  Unzip the file and place it into a directory that is in the Windows CLASSPATH."
+    echo "================================================================================================"
+    echo
+    exit 0
 
     ;;
   "Linux")
