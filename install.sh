@@ -60,12 +60,12 @@ getPackage() {
     arch=$(uname -m)
     case $arch in
     "x86_64")
-      suffix="Darwin-x86_64"
+      suffix="Darwin_x86_64"
       ;;
     esac
     case $arch in
     "arm64")
-      suffix="Darwin-arm64"
+      suffix="Darwin_arm64"
       ;;
     esac
     ;;
@@ -80,12 +80,12 @@ getPackage() {
     arch=$(uname -m)
     case $arch in
     "aarch64")
-      suffix="Linux-arm64"
+      suffix="Linux_arm64"
       ;;
     esac
     case $arch in
     "x86_64")
-      suffix="Linux-x86_64"
+      suffix="Linux_x86_64"
       ;;
     esac
     ;;
