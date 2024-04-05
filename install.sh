@@ -4,7 +4,6 @@
 # Repo specific content #
 #########################
 
-# export ALIAS_NAME="ion"
 export OWNER=mas2020-golang
 export REPO=ion
 export BINLOCATION="/usr/local/bin"
@@ -15,7 +14,8 @@ export STOP_COLOR="\e[0m"
 # color for a main activity
 export ACTIVITY="\e[38;5;184m"
 # color for a sub activity
-export SUB_ACT="\n\n\e[1;34m➜\e[0m"
+export SUB_ACT="\n\n➜"
+# export SUB_ACT="\n\n\e[1;34m➜\e[0m"
 export DONE="\e[1;32m✔︎\e[0m"
 export ERROR="\e[1;31mERROR\e[0m:"
 export WARNING="\e[38;5;216mWARNING\e[0m:"
@@ -36,9 +36,6 @@ if [ ! $version ]; then
   echo "2. Download the latest release for your platform. Extract it and call it '$REPO'."
   echo "3. chmod +x ./$REPO"
   echo "4. mv ./$REPO $BINLOCATION"
-  if [ -n "$ALIAS_NAME" ]; then
-    echo "5. ln -sf $BINLOCATION/$REPO /usr/local/bin/$ALIAS_NAME"
-  fi
   exit 1
 fi
 
@@ -115,7 +112,8 @@ getPackage() {
 
   chmod +x "$targetFile"
   printf "\n${DONE} download complete"
-
+  
+  printf "${SUB_ACT} %s\n" "extracting the file $targetFile..."
   tar -xvf $targetFile
 
   # is the location writable?
@@ -127,13 +125,12 @@ getPackage() {
     echo "  following commands may need to be run manually."
     echo "============================================================"
     echo
-    echo "$ sudo cp ion $BINLOCATION/$REPO"
+    echo "$ sudo mv $REPO $BINLOCATION/$REPO"
 
-    if [ -n "$ALIAS_NAME" ]; then
-      echo "$ sudo ln -sf $BINLOCATION/$REPO $BINLOCATION/$ALIAS_NAME"
-    fi
+    # final operations
+    greets $targetFile
   else
-    printf "${SUB_ACT} %s ${STOP_COLOR}" "moving $REPO to $BINLOCATION..."
+    printf "${SUB_ACT} %s" "moving $REPO to $BINLOCATION..."
 
     if [ ! -w "$BINLOCATION/$REPO" ] && [ -f "$BINLOCATION/$REPO" ]; then
       echo
@@ -145,30 +142,27 @@ getPackage() {
       echo
       exit 1
     fi
-    mv "$targetFile" $BINLOCATION/$REPO
+    mv $REPO $BINLOCATION/$REPO
 
     if [ "$?" = "0" ]; then
       printf "\n${DONE} new version of $REPO installed to $BINLOCATION"
     fi
 
-    if [ -e "$targetFile" ]; then
-      rm "$targetFile"
-    fi
-
-    if [ -n "$ALIAS_NAME" ]; then
-      if [ $(which $ALIAS_NAME) ]; then
-        printf "\n${WARNING} there is already a command '$ALIAS_NAME' in the path, NOT creating alias"
-      else
-        if [ ! -L $BINLOCATION/$ALIAS_NAME ]; then
-          ln -s $BINLOCATION/$REPO $BINLOCATION/$ALIAS_NAME
-          printf "\n${WARNING} created alias '$ALIAS_NAME' for '$REPO'"
-        fi
-      fi
-    fi
-    printf "${SUB_ACT} checking application...\n"
+    printf "${SUB_ACT} checking the application...\n"
+    sleep 0.5
     ${SUCCESS_CMD}
+    
+    # final operations
+    greets $targetFile
   fi
 
+}
+
+greets() {
+  if [ -e "$1" ]; then
+    rm "$1"
+  fi
+  printf "${DONE} take a look at these files for further information: README.md, LICENSE, CHANGELOG.md\n"
 }
 
 hasCli
