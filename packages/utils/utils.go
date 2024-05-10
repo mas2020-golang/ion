@@ -64,3 +64,10 @@ func GetReader(args []string) (f *os.File, err error) {
 	}
 	return
 }
+
+func Verbose(text string, verbose bool) {
+	// fmt.Println("========== VERBOSITY ===========", verbose)
+	if verbose {
+		fmt.Print(text)
+	}
+}
