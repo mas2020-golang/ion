@@ -13,13 +13,15 @@ import (
 )
 
 type Replacer struct {
+	all          bool
 	verbose      bool
 	pattern      string
 	substitution string
 }
 
-func NewReplacer(verbose bool, pattern, substitution string) *Replacer {
+func NewReplacer(verbose, all bool, pattern, substitution string) *Replacer {
 	return &Replacer{
+		all:          all,
 		verbose:      verbose,
 		pattern:      pattern,
 		substitution: substitution,
@@ -27,10 +29,14 @@ func NewReplacer(verbose bool, pattern, substitution string) *Replacer {
 }
 
 func (r *Replacer) Replace(path string) error {
-	var oriLine, newLine string
+	var oriLine, newLine, verboseLine string
 	var replaced bool
 
-	utils.Verbose(output.YellowS("Yellow color represents verbosity information\n"), r.verbose)
+	utils.Verbose(output.YellowS("=================================================\n"), r.verbose)
+	utils.Verbose(output.YellowS("Yellow, green and red colors represent verbosity information.\nLegend:\n"), r.verbose)
+	utils.Verbose(output.GreenS("IT IS SOMETHING ADDED\n"), r.verbose)
+	utils.Verbose(output.RedS("IT IS SOMETHING REMOVED\n"), r.verbose)
+	utils.Verbose(output.YellowS("=================================================\n"), r.verbose)
 
 	// Open the input file for reading
 	inputFile, err := os.Open(path)
@@ -62,7 +68,7 @@ func (r *Replacer) Replace(path string) error {
 			}
 
 			// Replace the matched strings using the replace function
-			replaced, newLine = r.replacePattern(oriLine)
+			replaced, newLine, verboseLine = r.replacePattern(oriLine)
 			// Write the line to the output file
 			// _, writeErr := writer.WriteString(line)
 			// if writeErr != nil {
@@ -70,10 +76,13 @@ func (r *Replacer) Replace(path string) error {
 			// }
 			fmt.Print(newLine)
 			if replaced {
-				utils.Verbose(output.YellowS("OLD LINE ==> "+oriLine), r.verbose)
+				utils.Verbose(verboseLine, r.verbose)
 			}
 
 			if err == io.EOF {
+				break
+			}
+			if !r.all && replaced {
 				break
 			}
 		}
@@ -88,28 +97,40 @@ func (r *Replacer) Replace(path string) error {
 	return nil
 }
 
-func (r *Replacer) replacePattern(text string) (bool, string) {
+func (r *Replacer) replacePattern(text string) (bool, string, string) {
 	// Compile the regular expression pattern.
 	regexp := regexp.MustCompile(r.pattern)
 
 	// Find all matches of the regular expression pattern in the text.
 	matches := regexp.FindAllStringSubmatchIndex(text, -1)
 	if len(matches) == 0 {
-		return false, text
+		return false, text, ""
 	}
 	pointer := 0
 	result := strings.Builder{}
+	verboseResult := strings.Builder{}
 
 	utils.Verbose(output.YellowS(fmt.Sprintf("matches: %v\n", matches)), r.verbose)
+	// in case of verbosity the substitution pattern is green
+	if r.verbose {
+		r.substitution = output.GreenS(r.substitution)
+	}
 	for _, pairs := range matches {
 		start := pairs[0]
 		end := pairs[1]
 		result.WriteString(text[pointer:start])
 		result.WriteString(r.substitution)
+		if r.verbose {
+			verboseResult.WriteString(text[pointer:start])
+			verboseResult.WriteString(output.RedS(text[start:end]))
+		}
 		pointer = end
 	}
 	if pointer < len(text) {
 		result.WriteString(text[pointer:])
+		if r.verbose {
+			verboseResult.WriteString(text[pointer:])
+		}
 	}
-	return true, result.String()
+	return true, result.String(), verboseResult.String()
 }
