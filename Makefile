@@ -5,7 +5,7 @@ export INSTALL_PATH="/usr/local/bin"
 
 test:
 	@echo ">> ion test..."
-	@go test github.com/mas2020-golang/ion/cmd/file -coverprofile=coverage.out
+	@go test -v github.com/mas2020-golang/ion/cmd/file -coverprofile=coverage.out
 
 coverage:
 	@go tool cover -html=coverage.out

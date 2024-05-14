@@ -36,20 +36,21 @@ func NewReplacer(verbose, all bool, pattern, substitution string, showChangesOnl
 func (r *Replacer) Replace(path string) error {
 	var oriLine, newLine, verboseLine string
 	var replaced bool
-
 	utils.Verbose(output.YellowS("=================================================\n"), r.verbose)
 	utils.Verbose(output.YellowS("Yellow, green and red colors represent verbosity information.\nLegend:\n"), r.verbose)
 	utils.Verbose(output.GreenS("IT IS SOMETHING REPLACED\n"), r.verbose)
 	utils.Verbose(output.RedS("IT IS SOMETHING REMOVED\n"), r.verbose)
 	utils.Verbose(output.YellowS("=================================================\n"), r.verbose)
-
+	
+	output.TraceLog("Replacer.Replace()", "start replacing")
 	// Open the input file for reading
 	inputFile, err := os.Open(path)
 	if err != nil {
+		fmt.Println("err", err)
 		return err
 	}
 	defer inputFile.Close()
-
+	
 	// // Open the output file for writing
 	// outputFile, err := os.Create(path + ".repl")
 	// if err != nil {
@@ -79,7 +80,7 @@ func (r *Replacer) Replace(path string) error {
 			// if writeErr != nil {
 			// 	return writeErr
 			// }
-
+			
 			// show the changes only if needed
 			if r.showChangesOnly {
 				if replaced {

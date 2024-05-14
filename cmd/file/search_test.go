@@ -67,7 +67,8 @@ func TestSearch(t *testing.T) {
 		{
 			"../../test-files",
 			"line",
-			`../../test-files/search.txt
+			`../../test-files/replace.txt
+../../test-files/search.txt
 ../../test-files/tail-1.txt
 ../../test-files/tail-2.txt
 ../../test-files/tail-3.txt

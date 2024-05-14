@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	replaceSub, replacePattern string
+	replaceSub, replacePattern                      string
 	replaceVerbose, replaceAll, replShowChangesOnly bool
 )
 

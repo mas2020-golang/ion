@@ -1,0 +1,18 @@
+This is a test for search command.
+
+Flags are:
+--no-colors: no highlight colors in the output
+--verbose: gives back the number of found occurrences and some details on the PATH
+--insensitive: the search is case insensitive
+--words: search only for an entire word matching
+--after <NUMBER>: shows also the NUMBER of lines after the match
+--before <NUMBER>: shows also the NUMBER of lines before the match
+--recursive: when the input is a folder searches in the sub folders too
+--invert: shows the lines that doesn’t match with the pattern
+--count-lines: shows only how many lines match with the pattern
+--count-pattern: shows only how many time a pattern is in match
+--only-match: shows only the substring that match, not the entire line
+--only-filename: shows only the filename when a match is present one or more times
+--only-result: if there is at least one match it returns 1, otherwise 0
+app1username=app1login app
+app1password=S0methingS@Str0ng!
