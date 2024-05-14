@@ -11,7 +11,7 @@ import (
 
 var (
 	replaceSub, replacePattern string
-	replaceVerbose, replaceAll bool
+	replaceVerbose, replaceAll, replShowChangesOnly bool
 )
 
 // NewReplaceCmd represents the replace command
@@ -30,7 +30,7 @@ $ ...
 also contains some other options to alter the input file in a bunch of different ways.
 Take a look at the example section for more explanations.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			replacer := file.NewReplacer(replaceVerbose, replaceAll, replacePattern, replaceSub)
+			replacer := file.NewReplacer(replaceVerbose, replaceAll, replacePattern, replaceSub, replShowChangesOnly, cmd.OutOrStdout())
 			err := replacer.Replace(args[0])
 			output.CheckErrorAndExit("file.NewReplaceCmd", "replacing error", err)
 		},
@@ -42,6 +42,7 @@ Take a look at the example section for more explanations.`,
 	cmd.Flags().StringVarP(&replacePattern, "pattern", "p", replacePattern, "regexp pattern")
 	cmd.Flags().BoolVarP(&replaceVerbose, "verbose", "v", false, "verbosity mode")
 	cmd.Flags().BoolVarP(&replaceAll, "all", "a", false, "if all the search is done on the entire file, otherwise only the first occurrence is taken")
+	cmd.Flags().BoolVarP(&replShowChangesOnly, "showChangesOnly", "o", false, "if true it shows only the changed rows")
 
 	return cmd
 }

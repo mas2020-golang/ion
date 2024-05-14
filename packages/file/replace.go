@@ -13,18 +13,23 @@ import (
 )
 
 type Replacer struct {
-	all          bool
-	verbose      bool
-	pattern      string
-	substitution string
+	all             bool
+	verbose         bool
+	pattern         string
+	substitution    string
+	replacingCount  int
+	showChangesOnly bool
+	output          io.Writer
 }
 
-func NewReplacer(verbose, all bool, pattern, substitution string) *Replacer {
+func NewReplacer(verbose, all bool, pattern, substitution string, showChangesOnly bool, output io.Writer) *Replacer {
 	return &Replacer{
-		all:          all,
-		verbose:      verbose,
-		pattern:      pattern,
-		substitution: substitution,
+		all:             all,
+		verbose:         verbose,
+		pattern:         pattern,
+		substitution:    substitution,
+		showChangesOnly: showChangesOnly,
+		output:          output,
 	}
 }
 
@@ -34,7 +39,7 @@ func (r *Replacer) Replace(path string) error {
 
 	utils.Verbose(output.YellowS("=================================================\n"), r.verbose)
 	utils.Verbose(output.YellowS("Yellow, green and red colors represent verbosity information.\nLegend:\n"), r.verbose)
-	utils.Verbose(output.GreenS("IT IS SOMETHING ADDED\n"), r.verbose)
+	utils.Verbose(output.GreenS("IT IS SOMETHING REPLACED\n"), r.verbose)
 	utils.Verbose(output.RedS("IT IS SOMETHING REMOVED\n"), r.verbose)
 	utils.Verbose(output.YellowS("=================================================\n"), r.verbose)
 
@@ -74,8 +79,18 @@ func (r *Replacer) Replace(path string) error {
 			// if writeErr != nil {
 			// 	return writeErr
 			// }
-			fmt.Print(newLine)
+
+			// show the changes only if needed
+			if r.showChangesOnly {
+				if replaced {
+					r.output.Write([]byte(newLine))
+				}
+			} else {
+				r.output.Write([]byte(newLine))
+			}
+
 			if replaced {
+				r.replacingCount++
 				utils.Verbose(verboseLine, r.verbose)
 			}
 
@@ -94,6 +109,11 @@ func (r *Replacer) Replace(path string) error {
 	// 	return err
 	// }
 
+	if r.verbose {
+		r.output.Write([]byte("\n"))
+		output.InfoBox(fmt.Sprintf("total lines replacements: %d", r.replacingCount))
+	}
+
 	return nil
 }
 
@@ -110,7 +130,7 @@ func (r *Replacer) replacePattern(text string) (bool, string, string) {
 	result := strings.Builder{}
 	verboseResult := strings.Builder{}
 
-	utils.Verbose(output.YellowS(fmt.Sprintf("matches: %v\n", matches)), r.verbose)
+	utils.Verbose(output.YellowS(fmt.Sprintf("matches: %v\n", len(matches))), r.verbose)
 	// in case of verbosity the substitution pattern is green
 	if r.verbose {
 		r.substitution = output.GreenS(r.substitution)
